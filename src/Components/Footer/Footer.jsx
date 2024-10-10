@@ -17,7 +17,7 @@ function Footer() {
                                     &copy; Copyright 2023. All Rights Reserved by DevUI.
                                 </p>
                             </div>
-                        </div>
+                        </div>  
                     </div>
                     <div className="w-full p-6 md:w-1/2 lg:w-2/12">
                         <div className="h-full">
