@@ -1,72 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import appwriteService from '../appwrite/conf';
-import { Container, PostCard } from '../Components';
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import appwriteService from '../appwrite/conf'
+import PostCard from '../Components/PostCard'
 
 function Home() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     appwriteService.getPosts([])
       .then((post) => {
         if (post && post.documents) {
-          console.log('Fetched posts:', post.documents); // Debugging: Log fetched posts
-          setPosts(post.documents);  // Ensure this array contains posts
-        } else {
-          console.log('No posts found or incorrect response structure:', post);
+          setPosts(post.documents)
         }
       })
       .catch((error) => {
-        console.error('Error fetching posts:', error);  // Debugging: Log any errors
+        console.error('Error fetching posts:', error)
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => setLoading(false))
+  }, [])
 
   if (loading) {
     return (
-      <div className="w-full py-8 mt-4 text-center">
-        <Container>
-          <div className="flex flex-wrap">
-            <div className="p-2 w-full h-80 flex align-center justify-center">
-              <h1 className="text-2xl font-bold hover:text-gray-500 mt-10">
-                Loading posts...
-              </h1>
-            </div>
-          </div>
-        </Container>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
       </div>
-    );
+    )
   }
 
   if (posts.length === 0) {
     return (
-      <div className="w-full py-8 mt-4 text-center">
-        <Container>
-          <div className="flex flex-wrap">
-            <div className="p-2 w-full h-80 flex align-center justify-center">
-              <h1 className="text-2xl font-bold hover:text-gray-500 mt-10">
-                No posts available.
-              </h1>
-            </div>
-          </div>
-        </Container>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-center text-gray-700">No posts available.</h1>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="w-full py-8">
-      <Container>
-        <div className="flex flex-wrap">
-          {posts.map((post) => (
-            <div key={post.$id} className="p-2 w-1/3">
-              <PostCard {...post} />
-            </div>
-          ))}
-        </div>
-      </Container>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Latest Posts</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post) => (
+          <PostCard key={post.$id} {...post} />
+        ))}
+      </div>
     </div>
-  );
+  )
 }
 
-export default Home;
+export default Home

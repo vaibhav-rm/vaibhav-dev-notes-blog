@@ -1,70 +1,85 @@
 import React from 'react'
-import {Container, Logo, LogoutBtn} from '../index'
-import {Link} from 'react-router-dom'
-import {useSelector} from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { LogOut } from 'lucide-react'
+import authService from '../../appwrite/auth'
+import {useDispatch} from 'react-redux'
+import {logout} from '../../Store/authSlice'
 
 function Header() {
+  const authStatus = useSelector((state) => state.auth.status)
+  const navigate = useNavigate()
 
-  const authStatus = useSelector((state)=> state.auth.status)
-  const navigate = useNavigate();
+  const dispatch = useDispatch()
+
+  const logoutHandler = () => {
+      authService.logout().then(() => {
+          dispatch(logout())
+      }).catch((error) => ("Something went wrong::", error));
+  } 
 
   const navItems = [
     {
       name: 'Home',
-      slug: "/",
-      active: true
-    }, 
+      slug: '/',
+      active: true,
+    },
     {
-      name: "Login",
-      slug: "/login",
+      name: 'Login',
+      slug: '/login',
       active: !authStatus,
-  },
-  {
-      name: "Signup",
-      slug: "/signup",
+    },
+    {
+      name: 'Signup',
+      slug: '/signup',
       active: !authStatus,
-  },
-  {
-      name: "All Posts",
-      slug: "/all-posts",
+    },
+    {
+      name: 'All Posts',
+      slug: '/all-posts',
       active: authStatus,
-  },
-  {
-      name: "Add Post",
-      slug: "/add-post",
+    },
+    {
+      name: 'Add Post',
+      slug: '/add-post',
       active: authStatus,
-  },
+    },
   ]
 
-
-
   return (
-    <header className='py-3 shadow bg-black text-white rounded-full shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)]'>
-      <Container>
-        <nav className='flex'>
-          <div className='ml-7 my-auto text-2xl'>
-            <Link to='/'>
-              <Logo width='70px'/>
-            </Link>
-          </div>
-          <ul className='flex ml-auto'>
-            {navItems.map((item)=> item.active ? (
-              <li key={item.name}>
-                <button
-                onClick={()=>navigate(item.slug)}
-                className='inline-block px-6 py-2 duration-200 transition-all hover:bg-white rounded-full hover:text-black'
-                >{item.name}</button>
-              </li>
-            ) : null)}
-            {authStatus && (
-              <li>
-                <LogoutBtn /> 
-              </li>
+    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2">
+            <span className="font-bold text-xl text-gray-900">Vaibhav Dev Notes</span>
+          </Link>
+          <nav className="hidden md:flex items-center space-x-4">
+            {navItems.map(
+              (item) =>
+                item.active && (
+                  <button
+                    key={item.name}
+                    onClick={() => navigate(item.slug)}
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  >
+                    {item.name}
+                  </button>
+                )
             )}
-          </ul>
-        </nav>
-      </Container>
+          </nav>
+          <div className="flex items-center space-x-4">
+            {authStatus && (
+              <button
+                onClick={logoutHandler}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Logout</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </header>
   )
 }
