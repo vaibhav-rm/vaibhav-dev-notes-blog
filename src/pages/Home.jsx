@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import appwriteService from '../appwrite/conf'
 import PostCard from '../Components/PostCard'
+import appwriteService from '../appwrite/conf'
 
 function Home() {
   const [posts, setPosts] = useState([])
@@ -11,7 +10,11 @@ function Home() {
     appwriteService.getPosts([])
       .then((post) => {
         if (post && post.documents) {
-          setPosts(post.documents)
+          // Sort posts by createdAt or timestamp in descending order
+          const sortedPosts = post.documents.sort((a, b) => {
+            return new Date(b.$createdAt) - new Date(a.$createdAt) // Assuming createdAt is a date string
+          })
+          setPosts(sortedPosts)
         }
       })
       .catch((error) => {
