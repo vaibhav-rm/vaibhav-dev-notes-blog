@@ -16,6 +16,7 @@
     "@mui/material": "^6.1.3",
     "@reduxjs/toolkit": "^1.9.5",
     "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.15",
     "@tinymce/tinymce-react": "^4.3.0",
     "appwrite": "^13.0.0",
     "html-react-parser": "^4.2.2",

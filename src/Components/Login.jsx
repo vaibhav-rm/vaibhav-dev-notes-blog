@@ -28,14 +28,14 @@ function Login() {
     }
   return (
     <div className='flex items-center justify-center w-full my-10'>
-        <div className={`mx-auto w-full max-w-lg bg-white shadow-[0px_4px_16px_rgba(17,17,26,0.1),_0px_8px_24px_rgba(17,17,26,0.1),_0px_16px_56px_rgba(17,17,26,0.1)] rounded-xl p-10 border border-black/10`}>
+        <div className={`  dark:bg-gray-700 transition-colors duration-200 mx-auto w-full max-w-lg bg-white shadow-[0px_4px_16px_rgba(17,17,26,0.1),_0px_8px_24px_rgba(17,17,26,0.1),_0px_16px_56px_rgba(17,17,26,0.1)] rounded-xl p-10 border border-black/10`}>
         <div className="mb-2 flex justify-center">
                     <span className="inline-block w-full max-w-[100px] font-bold text-2xl">
                         <Logo width="100%" />
                     </span>
         </div>
-        <h2 className="text-center text-2xl font-bold leading-tight">Sign in to your account</h2>
-        <p className="mt-2 text-center text-base text-black/60">
+        <h2 className="text-center text-2xl  font-bold leading-tight">Sign in to your account</h2>
+        <p className="mt-2 text-center dark:text-white text-base text-black/60">
                     Don&apos;t have any account?&nbsp;
                     <Link
                         to="/signup"
