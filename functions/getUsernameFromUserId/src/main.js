@@ -2,41 +2,28 @@ import { Client, Users } from 'node-appwrite';
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
-  // Initialize the Appwrite client
   const client = new Client()
     .setEndpoint(process.env.VITE_APPWRITE_URL)
     .setProject(process.env.VITE_PROJECT_ID)
     .setKey(req.headers['x-appwrite-key'] ?? '');
+  
   const users = new Users(client);
 
-  // Extract userId from request parameters
-  const userId = req.body.userId ?? req.headers['x-user-id'] ?? '';
-
-  if (!userId) {
-    return res.json({ error: "UserId is required." });
-  }
-
   try {
-    // Fetch the user by userId
-    const user = await users.get(userId);
-    log(`User found: ${user.name}`);
+    const userId = req.body?.userId; // Assume userId is sent in the request body
+    if (!userId) {
+      return res.json({ error: "User ID is required" });
+    }
 
-    // Return the user object
-    return res.json(user);
+    const response = await users.get(userId); // Fetch the user by userId
+    log(`User fetched successfully: ${response}`);
+
+    return res.json({
+      success: true,
+      user: response, // Return the user object as part of the response
+    });
   } catch (err) {
-    error("Could not retrieve user: " + err.message);
-    return res.json({ error: "User not found: " + err.message });
+    error("Error fetching user: " + err.message);
+    return res.json({ success: false, error: err.message }); // Return an error message in the response
   }
-
-  // Example response for /ping path
-  if (req.path === "/ping") {
-    return res.text("Pong");
-  }
-
-  return res.json({
-    motto: "Build like a team of hundreds_",
-    learn: "https://appwrite.io/docs",
-    connect: "https://appwrite.io/discord",
-    getInspired: "https://builtwith.appwrite.io",
-  });
 };
