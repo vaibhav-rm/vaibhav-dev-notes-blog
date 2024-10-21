@@ -25,7 +25,6 @@ export default function Post() {
             setAuthor(user)
           }).catch(error => {
             console.error("Error fetching author data:", error)
-            setAuthor({ name: "Unknown Author" })
           })
         } else {
           navigate('/')
@@ -51,7 +50,7 @@ export default function Post() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 flex items-center text-gray-600 dark:text-gray-200 dark:hover:text-gray-50 hover:text-gray-900 transition-colors duration-200"
+        className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200"
       >
         <ChevronLeft className="mr-2 h-4 w-4" /> Back
       </button>
@@ -80,7 +79,7 @@ export default function Post() {
           )}
         </div>
         <div className="p-6">
-          <h1 className="text-3xl font-bold text-black tracking-tight mb-4">{post.title}</h1>
+          <h1 className="text-3xl font-bold tracking-tight mb-4">{post.title}</h1>
           <div className="prose max-w-none">{parse(post.content)}</div>
         </div>
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">

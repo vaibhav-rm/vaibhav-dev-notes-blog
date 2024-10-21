@@ -8,7 +8,7 @@ import LoadingSpinner from '../LoadingSpinner'
 
 export default function PostForm({ post }) {
   const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
-    defaultValues: {  
+    defaultValues: {
       title: post?.title || '',
       slug: post?.$id || "",
       content: post?.content || '',

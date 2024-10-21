@@ -19,7 +19,7 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
         setAuthor(user.name);
       }).catch((error) => {
         console.error("Error fetching author data:", error);
-        setAuthor("Unknown Author");
+        setAuthor("Unknown"); // Fallback in case of an error
       });
     }
   }, [content, userId]);
