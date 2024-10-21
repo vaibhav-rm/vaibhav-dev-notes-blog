@@ -124,7 +124,7 @@ export class Service {
             );
             return true;
         } catch (error) {
-            console.log("Appwrite Services :: deleteFile :: error", error);
+            console.log("Appwrite Services :: deleteFile :: errorerr", error);
             return false;
         }
     }
