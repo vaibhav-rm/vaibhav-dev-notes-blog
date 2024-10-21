@@ -4,8 +4,8 @@ import { Client, Users } from 'node-appwrite';
 export default async ({ req, res, log, error }) => {
   // Initialize the Appwrite client
   const client = new Client()
-    .setEndpoint(import.meta.env.VITE_APPWRITE_URL)
-    .setProject(import.meta.env.VITE_PROJECT_ID)
+    .setEndpoint(process.env.VITE_APPWRITE_URL)
+    .setProject(process.env.VITE_PROJECT_ID)
     .setKey(req.headers['x-appwrite-key'] ?? '');
   const users = new Users(client);
 
