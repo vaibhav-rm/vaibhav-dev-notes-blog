@@ -1,12 +1,11 @@
 import { Client, Users } from 'node-appwrite';
-import config from '../../../src/config/config.js'
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
   // Initialize the Appwrite client
   const client = new Client()
-    .setEndpoint(config.appwriteUrl)
-    .setProject(config.appwriteProjectId)
+    .setEndpoint(import.meta.env.VITE_APPWRITE_URL)
+    .setProject(import.meta.env.VITE_PROJECT_ID)
     .setKey(req.headers['x-appwrite-key'] ?? '');
   const users = new Users(client);
 
