@@ -1,29 +1,37 @@
-import { Client, Users } from 'node-appwrite';
+const sdk = require('node-appwrite');
 
-// This Appwrite function will be executed every time your function is triggered
+// This function will be triggered when you invoke it
 export default async ({ req, res, log, error }) => {
-  const client = new Client()
-    .setEndpoint(process.env.VITE_APPWRITE_URL)
-    .setProject(process.env.VITE_PROJECT_ID)
-    .setKey(req.headers['x-appwrite-key'] ?? '');
-  
-  const users = new Users(client);
+  // Initialize the client with your Appwrite API
+  const client = new sdk.Client()
+    .setEndpoint(process.env.VITE_APPWRITE_URL) // Your Appwrite endpoint
+    .setProject(process.env.VITE_PROJECT_ID) // Your project ID
+    .setKey(req.headers['x-appwrite-key'] ?? ''); // Your secret API key
+
+  // Initialize the Users service
+  const users = new sdk.Users(client);
 
   try {
-    const userId = req.body?.userId; // Assume userId is sent in the request body
+    // Extract userId from request body
+    const { userId } = req.body;
+    
+    // Validate that userId is provided
     if (!userId) {
-      return res.json({ error: "User ID is required" });
+      return res.json({ error: "userId is required" });
     }
 
-    const response = await users.get(userId); // Fetch the user by userId
-    log(`User fetched successfully: ${response}`);
+    // Fetch user details from the Appwrite Users service
+    const result = await users.get(userId);
+    log(`User data: ${JSON.stringify(result)}`);
 
+    // Return the user object in the response
     return res.json({
       success: true,
-      user: response, // Return the user object as part of the response
+      user: result,
     });
+
   } catch (err) {
-    error("Error fetching user: " + err.message);
-    return res.json({ success: false, error: err.message }); // Return an error message in the response
+    error(`Error fetching user: ${err.message}`);
+    return res.json({ success: false, error: err.message });
   }
 };
