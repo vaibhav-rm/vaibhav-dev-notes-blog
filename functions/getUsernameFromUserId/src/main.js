@@ -1,15 +1,15 @@
-const sdk = require('node-appwrite');
+// Import the Appwrite SDK using ES modules
+import { Client, Users } from 'node-appwrite';
 
-// This function will be triggered when you invoke it
 export default async ({ req, res, log, error }) => {
   // Initialize the client with your Appwrite API
-  const client = new sdk.Client()
+  const client = new Client()
     .setEndpoint(process.env.VITE_APPWRITE_URL) // Your Appwrite endpoint
     .setProject(process.env.VITE_PROJECT_ID) // Your project ID
     .setKey(req.headers['x-appwrite-key'] ?? ''); // Your secret API key
 
   // Initialize the Users service
-  const users = new sdk.Users(client);
+  const users = new Users(client);
 
   try {
     // Extract userId from request body
