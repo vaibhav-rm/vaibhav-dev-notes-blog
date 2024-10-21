@@ -1,5 +1,5 @@
 import { Client, Users } from 'node-appwrite';
-import config from '../../../src/config/config'
+import config from '../../../src/config/config.js'
 
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
