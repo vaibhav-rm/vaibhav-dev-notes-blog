@@ -1,37 +1,35 @@
+// Import the Appwrite SDK using ES modules
 import { Client, Users } from 'node-appwrite';
 
 export default async ({ req, res, log, error }) => {
-  // Initialize the Appwrite client
+  // Initialize the client with your Appwrite API
   const client = new Client()
     .setEndpoint(process.env.VITE_APPWRITE_URL) // Your Appwrite endpoint
     .setProject(process.env.VITE_PROJECT_ID) // Your project ID
-    .setKey(process.env.VITE_API_KEY); // Your secret API key
+    .setKey(req.headers['x-appwrite-key'] ?? ''); // Your secret API key
 
   // Initialize the Users service
   const users = new Users(client);
 
   try {
-    // Parse the request body
+    // Extract userId from request body
     const { userId } = JSON.parse(req.body);
-
-    // Validate the userId
+    
+    // Validate that userId is provided
     if (!userId) {
-      return res.json({ success: false, error: "userId is required" });
+      return res.json({ error: "userId is required" });
     }
 
-    // Fetch user details
+    // Fetch user details from the Appwrite Users service
     const result = await users.get(userId);
     log(`User data: ${JSON.stringify(result)}`);
 
-    // Return the user data
+    // Return the user object in the response
     return res.json({
       success: true,
-      user: {
-        id: result.$id,
-        name: result.name,
-        email: result.email
-      }
+      user: result,
     });
+
   } catch (err) {
     error(`Error fetching user: ${err.message}`);
     return res.json({ success: false, error: err.message });
