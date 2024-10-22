@@ -12,7 +12,7 @@ export default async ({ req, res, log, error }) => {
     // Ensure the request body is parsed as JSON
     let userId;
     if (req.body) {
-      userId = req.body.userId;
+      userId = JSON.parse(req.body).userId;
     } else if (req.query) {
       userId = req.query.userId;
     }
