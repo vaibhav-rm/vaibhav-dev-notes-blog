@@ -17,7 +17,6 @@ useEffect(() => {
   if (userId) {
     appwriteService.getUserDetails(userId).then((user) => {
       if (user) {
-        console.log("User details:", user);
         setAuthor(user.name); // Set the author name if user data is available
       } else {
         setAuthor("Unknown"); // Fallback in case of an error

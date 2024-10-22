@@ -21,7 +21,7 @@ export default function Post() {
         if (fetchedPost) {
           setPost(fetchedPost)
           // Fetch author data
-          appwriteService.getUser(fetchedPost.userId).then((user) => {
+          appwriteService.getUserDetails(fetchedPost.userId).then((user) => {
             setAuthor(user)
           }).catch(error => {
             console.error("Error fetching author data:", error)
