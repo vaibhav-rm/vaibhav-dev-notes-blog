@@ -12,8 +12,8 @@ export default async ({ req, res, log, error }) => {
   const users = new Users(client);
 
   try {
-    // Extract userId from request body
-    const { userId } = req.body;
+    // Extract userId from request body or query parameters 
+    const { userId } = req.body || req.query;
     
     // Validate that userId is provided
     if (!userId) {

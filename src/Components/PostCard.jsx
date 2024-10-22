@@ -8,21 +8,28 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
   const [summary, setSummary] = useState("");
   const [author, setAuthor] = useState(null);
 
-  useEffect(() => {
-    if (content) {
-      setSummary(content);
-    }
+useEffect(() => {
+  if (content) {
+    setSummary(content);
+  }
 
-    // Fetch the author using the userId from the post
-    if (userId) {
-      appwriteService.getUserDetails(userId).then((user) => {
-        setAuthor(user.name);
-      }).catch((error) => {
-        console.error("Error fetching author data:", error);
+  // Fetch the author using the userId from the post
+  if (userId) {
+    appwriteService.getUserDetails(userId).then((user) => {
+      if (user) {
+        console.log("User details:", user);
+        setAuthor(user.name); // Set the author name if user data is available
+      } else {
         setAuthor("Unknown"); // Fallback in case of an error
-      });
-    }
-  }, [content, userId]);
+      }
+    }).catch((error) => {
+      console.error("Error fetching author data:", error);
+      setAuthor("Unknown"); // Fallback in case of an error
+    });
+  }
+}, [content, userId]);
+
+  
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-105 border border-gray-200">

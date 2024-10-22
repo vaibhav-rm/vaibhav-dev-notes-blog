@@ -1,5 +1,6 @@
 import config from '../config/config'
 import { Client, ID, Databases, Storage, Query, Account, Functions } from "appwrite"
+import axios from 'axios';
 
 export class Service {
     client = new Client();
@@ -140,41 +141,48 @@ export class Service {
 
     async getUserDetails(userId) {
         try {
-            if (!userId) {
-                console.error("getUserDetails called with no userId");
-                return null;
-            }
-    
-            const functionId = '67168fef001a4be773e8';
-            console.log("Calling function with ID:", functionId, "for userId:", userId);
-    
-            const response = await this.functions.createExecution(
-                functionId,
-                JSON.stringify({ userId }),  // Ensure it's stringified
-                false
-            );
-    
-            console.log("Full function response:", JSON.stringify(response, null, 2));
-    
-            if (response && response.response) {
-                const data = JSON.parse(response.response);
-                console.log("Parsed function output:", data);
-    
-                if (data.success && data.user) {
-                    return data.user;
-                } else {
-                    console.error("Error fetching user:", data.error || "Invalid data structure");
-                    return null;
-                }
-            } else {
-                console.error("Error fetching user: Invalid response", response);
-                return null;
-            }
-        } catch (error) {
-            console.error("Error calling cloud function:", error);
+          const execution = await this.functions.createExecution(
+            '67168fef001a4be773e8',
+            JSON.stringify({userId: '670f3c89044b04a5c4b3'}),
+            false
+          );
+      
+          // Check for a valid response
+          if (!execution.response) {
+            console.log(execution)
+            console.error("Response is undefined");
             return null;
+          }
+      
+          // Parse the JSON response
+          let result;
+          try {
+            result = JSON.parse(execution.response);
+          } catch (parseError) {
+            console.error("Error parsing response:", execution.response);
+            return null;
+          }
+      
+          // Check if the response indicates success and return the user object
+          if (result.success) {
+            return {
+              name: result.user.name,  // Access the name here
+              email: result.user.email  // Optionally, access the email here
+            };
+          } else {
+            console.error("Appwrite service :: getUserDetails :: error", result.error);
+            return null;
+          }
+        } catch (error) {
+          console.error("Appwrite service :: getUserDetails :: error", error);
+          return null;
         }
-    }
+      }
+      
+      
+      
+    
+
     
 }
 
