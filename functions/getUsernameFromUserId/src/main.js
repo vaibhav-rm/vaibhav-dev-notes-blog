@@ -13,7 +13,7 @@ export default async ({ req, res, log, error }) => {
 
   try {
     // Extract userId from request body
-    const { userId } = JSON.parse(req.body);
+    const { userId } = req.body;
     
     // Validate that userId is provided
     if (!userId) {
