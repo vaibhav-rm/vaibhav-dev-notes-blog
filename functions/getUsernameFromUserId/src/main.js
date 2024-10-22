@@ -19,6 +19,7 @@ export default async ({ req, res, log, error }) => {
 
     // Validate that userId is provided
     if (!userId) {
+      error("userId is required");
       return res.json({ error: "userId is required" });
     }
 
