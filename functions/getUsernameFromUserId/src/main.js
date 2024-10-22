@@ -4,7 +4,7 @@ export default async ({ req, res, log, error }) => {
   const client = new Client()
     .setEndpoint(process.env.VITE_APPWRITE_URL) // Your Appwrite endpoint
     .setProject(process.env.VITE_PROJECT_ID) // Your project ID
-    .setKey(req.headers['x-appwrite-key'] ?? ''); // Your secret API key
+    .setKey(process.env.VITE_API_KEY); // Your secret API key
 
   const users = new Users(client);
 
