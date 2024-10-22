@@ -15,7 +15,7 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
 
     // Fetch the author using the userId from the post
     if (userId) {
-      appwriteService.getUser(userId).then((user) => {
+      appwriteService.getUserDetails(userId).then((user) => {
         setAuthor(user.name);
       }).catch((error) => {
         console.error("Error fetching author data:", error);
