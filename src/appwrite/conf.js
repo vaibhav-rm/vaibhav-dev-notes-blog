@@ -141,40 +141,42 @@ export class Service {
 
     async getUserDetails(userId) {
         try {
-    
-            const execution = await this.functions.createExecution(
-                config.appwriteFunctionId,
+            if (!userId) {
+                console.error("getUserDetails called with no userId");
+                return null;
+            }
+
+            const functionId = '67168fef001a4be773e8';
+           // console.log("Calling function with ID:", functionId, "for userId:", userId);
+
+            const response = await this.functions.createExecution(
+                functionId,
                 JSON.stringify({ userId }),
                 false
             );
-        
-            // // Check for a valid response
-            // if (!execution.response) {
-            //     console.error("Response is undefined"); 
-            //     return null;
-            // }
-    
-            // Parse the JSON response
-            let result;
-            try {
-                result = JSON.parse(execution.responseBody);
-            } catch (parseError) {
-                console.error("Error parsing response:", execution.responseBody);
-                return null;
-            }
-    
-            // Check if the response indicates success
-            if (result.success) {
-                return {
-                    name: result.user.name,
-                    email: result.user.email
-                };
+
+            // console.log("Full function response:", JSON.stringify(response, null, 2));
+
+            if (response && response.responseBody) {    
+                try {
+                    const data = JSON.parse(response.responseBody);
+                    
+                    if (data.success && data.user) {
+                        return data.user;
+                    } else {
+                        console.error("Error fetching user:", data.error || "Invalid data structure");
+                        return null;
+                    }
+                } catch (parseError) {
+                    console.error("Error parsing function response:", parseError);
+                    return null;
+                }
             } else {
-                console.error("Appwrite service :: getUserDetails :: error", result.error);
+                console.error("Error fetching user: Invalid response", response);
                 return null;
             }
         } catch (error) {
-            console.error("Appwrite service :: getUserDetails :: error", error);
+            console.error("Error calling cloud function:", error);
             return null;
         }
     }
