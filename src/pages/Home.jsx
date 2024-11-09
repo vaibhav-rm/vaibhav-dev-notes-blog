@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
+import { motion } from 'framer-motion'
 import PostCard from '../Components/PostCard'
 import appwriteService from '../appwrite/conf'
 import '../App.css'
@@ -34,7 +35,6 @@ function Home() {
   )
 
   useEffect(() => {
-    // Prefetch author data for each post
     posts?.forEach(post => {
       queryClient.prefetchQuery(['author', post.userId], () => appwriteService.getUserDetails(post.userId))
     })
@@ -43,7 +43,19 @@ function Home() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 dark:border-blue-400"></div>
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 2,
+            ease: "easeInOut",
+            times: [0, 0.5, 1],
+            repeat: Infinity,
+          }}
+          className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full"
+        />
       </div>
     )
   }
@@ -51,7 +63,14 @@ function Home() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-center text-red-600">Error loading posts. Please try again later.</h1>
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-2xl font-bold text-center text-red-600"
+        >
+          Error loading posts. Please try again later.
+        </motion.h1>
       </div>
     )
   }
@@ -59,20 +78,52 @@ function Home() {
   if (!posts || posts.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-center text-gray-700 dark:text-gray-300">No posts available.</h1>
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-2xl font-bold text-center text-gray-700 dark:text-gray-300"
+        >
+          No posts available.
+        </motion.h1>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Latest Posts</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post) => (
-          <PostCard key={post.$id} {...post} />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto px-4 py-8"
+    >
+      <motion.h1
+        initial={{ y: -50 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="text-5xl font-bold mb-12 text-gray-800 dark:text-white text-center"
+      >
+        Latest Posts
+      </motion.h1>
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
+        {posts.map((post, index) => (
+          <motion.div
+            key={post.$id}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            className="w-full"
+          >
+            <PostCard {...post} />
+          </motion.div>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
