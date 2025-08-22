@@ -106,6 +106,49 @@ export class Service {
         }
     }
 
+    // Inside Service class
+async addComment(commentData) {
+    try {
+        return await this.databases.createDocument(
+            config.appwriteDatabaseId,
+            config.appwriteCommentsCollectionId, // new collection
+            ID.unique(),
+            commentData
+        );
+    } catch (error) {
+        console.error("Appwrite Service :: addComment :: error", error);
+        return null;
+    }
+}
+
+async getComments(postId) {
+    try {
+        return await this.databases.listDocuments(
+            config.appwriteDatabaseId,
+            config.appwriteCommentsCollectionId,
+            [Query.equal("postId", postId), Query.orderDesc("$createdAt")]
+        );
+    } catch (error) {
+        console.error("Appwrite Service :: getComments :: error", error);
+        return [];
+    }
+}
+
+async deleteComment(commentId) {
+    try {
+        await this.databases.deleteDocument(
+            config.appwriteDatabaseId,
+            config.appwriteCommentsCollectionId,
+            commentId
+        );
+        return true;
+    } catch (error) {
+        console.error("Appwrite Service :: deleteComment :: error", error);
+        return false;
+    }
+}
+
+
     async uploadFile(file) {
         try {
             return await this.bucket.createFile(

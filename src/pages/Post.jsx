@@ -32,12 +32,20 @@ export default function Post() {
           }).catch(error => {
             console.error("Error fetching author data:", error)
           })
-          // Fetch comments (assuming you have a method for this in appwriteService)
-          appwriteService.getComments(fetchedPost.$id).then((fetchedComments) => {
-            setComments(fetchedComments)
-          }).catch(error => {
-            console.error("Error fetching comments:", error)
-          })
+// Fetch comments
+appwriteService.getComments(fetchedPost.$id)
+  .then((fetchedComments) => {
+    if (fetchedComments && fetchedComments.documents) {
+      setComments(fetchedComments.documents);
+    } else {
+      setComments([]); // fallback if empty
+    }
+  })
+  .catch(error => {
+    console.error("Error fetching comments:", error);
+    setComments([]);
+  });
+
         } else {
           navigate('/')
         }
@@ -62,24 +70,32 @@ export default function Post() {
     setTimeout(() => setShowShareToast(false), 3000)
   }
 
-  const handleCommentSubmit = (e) => {
-    e.preventDefault()
-    if (newComment.trim() && userData) {
-      const commentData = {
-        postId: post.$id,
-        userId: userData.$id,
-        content: newComment.trim(),
-        createdAt: new Date().toISOString()
+const handleCommentSubmit = async (e) => {
+  e.preventDefault();
+
+  if (newComment.trim() && userData) {
+    const commentData = {
+      postId: post.$id,
+      userId: userData.$id,
+      userName: userData.name || "Anonymous", // optional, in case you want to display name
+      content: newComment.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      const addedComment = await appwriteService.addComment(commentData);
+
+      if (addedComment) {
+        // Appwrite returns the full created document
+        setComments([addedComment, ...comments]);
+        setNewComment('');
       }
-      // Assuming you have a method to add comments in appwriteService
-      appwriteService.addComment(commentData).then((addedComment) => {
-        setComments([addedComment, ...comments])
-        setNewComment('')
-      }).catch(error => {
-        console.error("Error adding comment:", error)
-      })
+    } catch (error) {
+      console.error("Error adding comment:", error);
     }
   }
+};
+
 
   const options = {
     replace: (domNode) => {
