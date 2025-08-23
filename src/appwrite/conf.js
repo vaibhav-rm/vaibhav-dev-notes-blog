@@ -1,5 +1,5 @@
 import config from '../config/config'
-import { Client, ID, Databases, Storage, Query, Account, Functions } from "appwrite"
+import { Client, ID, Databases, Storage, Query, Account, Functions,Permission, Role } from "appwrite"
 import axios from 'axios';
 
 export class Service {
@@ -149,18 +149,22 @@ async deleteComment(commentId) {
 }
 
 
-    async uploadFile(file) {
-        try {
-            return await this.bucket.createFile(
-                config.appwriteBucketId,
-                ID.unique(),
-                file
-            );
-        } catch (error) {
-            console.log("Appwrite Services :: uploadFile :: error", error);
-            return false;
-        }
-    }
+async uploadFile(file) {
+  try {
+    return await this.bucket.createFile(
+      config.appwriteBucketId,
+      ID.unique(),
+      file,
+      [
+        Permission.read(Role.any()) // 👈 makes file publicly readable
+      ]
+    );
+  } catch (error) {
+    console.log("Appwrite Services :: uploadFile :: error", error);
+    return false;
+  }
+}
+
 
     async deleteFile(fileId) {
         try {
@@ -181,6 +185,11 @@ async deleteComment(commentId) {
             fileId
         );
     }
+
+      // ✅ Always return direct URL
+  getFileUrl(fileId) {
+    return `${config.appwriteUrl}/storage/buckets/${config.appwriteBucketId}/files/${fileId}/view?project=${config.appwriteProjectId}`;
+  }
 
     async getUserDetails(userId) {
         try {

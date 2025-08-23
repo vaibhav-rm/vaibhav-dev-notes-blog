@@ -158,7 +158,7 @@ const handleCommentSubmit = async (e) => {
         >
           <div className="relative aspect-video">
             <img
-              src={appwriteService.getFilePreview(post.featuredImage)}
+              src={appwriteService.getFileUrl(post.featuredImage)}
               alt={post.title}
               className="object-cover w-full h-full"
             />

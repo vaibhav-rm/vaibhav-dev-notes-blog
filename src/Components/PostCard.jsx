@@ -31,7 +31,7 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
       >
         <img
           className="w-full h-full object-cover"
-          src={appwriteService.getFilePreview(featuredImage)}
+          src={appwriteService.getFileUrl(featuredImage)}
           alt={title}
         />
         <motion.div 
