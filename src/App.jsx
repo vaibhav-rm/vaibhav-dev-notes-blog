@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-import './App.css'
-import authService from './appwrite/auth'
-import { login, logout } from './Store/authSlice'
-import { Header, Footer } from './Components' 
-import { Outlet } from 'react-router-dom'
+"use client"
+
+import { useState, useEffect } from "react"
+import { useDispatch } from "react-redux"
+import "./App.css"
+import "./mobile.css" // add responsive override stylesheet AFTER App.css so it takes precedence
+import authService from "./appwrite/auth"
+import { login, logout } from "./Store/authSlice"
+import { Header, Footer } from "./Components"
+import { Outlet } from "react-router-dom"
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -12,10 +15,11 @@ function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    authService.getCurrentUser()
+    authService
+      .getCurrentUser()
       .then((userData) => {
         if (userData) {
-          dispatch(login({userData}))
+          dispatch(login({ userData }))
         } else {
           dispatch(logout())
         }
@@ -23,7 +27,7 @@ function App() {
       .finally(() => setLoading(false))
 
     // Check for dark mode preference
-    const isDarkMode = localStorage.getItem('darkMode') === 'true'
+    const isDarkMode = localStorage.getItem("darkMode") === "true"
     setDarkMode(isDarkMode)
     updateTheme(isDarkMode)
   }, [])
@@ -32,14 +36,14 @@ function App() {
     const newDarkMode = !darkMode
     setDarkMode(newDarkMode)
     updateTheme(newDarkMode)
-    localStorage.setItem('darkMode', newDarkMode)
+    localStorage.setItem("darkMode", newDarkMode)
   }
 
   const updateTheme = (isDarkMode) => {
     if (isDarkMode) {
-      document.documentElement.classList.add('dark')
+      document.documentElement.classList.add("dark")
     } else {
-      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.remove("dark")
     }
   }
 

@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import parse from 'html-react-parser'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, Edit2, Trash2, Calendar, User, Clock, Share2, MessageCircle } from 'lucide-react'
-import appwriteService from '../appwrite/conf'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Helmet } from 'react-helmet'
+"use client"
+
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useParams } from "react-router-dom"
+import { useSelector } from "react-redux"
+import parse from "html-react-parser"
+import { motion, AnimatePresence } from "framer-motion"
+import { ChevronLeft, Edit2, Trash2, Calendar, User, Clock, Share2 } from "lucide-react"
+import appwriteService from "../appwrite/conf"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
+import { Helmet } from "react-helmet"
 
 export default function Post() {
   const [post, setPost] = useState(null)
   const [author, setAuthor] = useState(null)
   const [comments, setComments] = useState([])
-  const [newComment, setNewComment] = useState('')
+  const [newComment, setNewComment] = useState("")
   const [showShareToast, setShowShareToast] = useState(false)
   const { slug } = useParams()
   const navigate = useNavigate()
@@ -27,31 +29,34 @@ export default function Post() {
       appwriteService.getPost(slug).then((fetchedPost) => {
         if (fetchedPost) {
           setPost(fetchedPost)
-          appwriteService.getUserDetails(fetchedPost.userId).then((user) => {
-            setAuthor(user)
-          }).catch(error => {
-            console.error("Error fetching author data:", error)
-          })
-// Fetch comments
-appwriteService.getComments(fetchedPost.$id)
-  .then((fetchedComments) => {
-    if (fetchedComments && fetchedComments.documents) {
-      setComments(fetchedComments.documents);
-    } else {
-      setComments([]); // fallback if empty
-    }
-  })
-  .catch(error => {
-    console.error("Error fetching comments:", error);
-    setComments([]);
-  });
-
+          appwriteService
+            .getUserDetails(fetchedPost.userId)
+            .then((user) => {
+              setAuthor(user)
+            })
+            .catch((error) => {
+              console.error("Error fetching author data:", error)
+            })
+          // Fetch comments
+          appwriteService
+            .getComments(fetchedPost.$id)
+            .then((fetchedComments) => {
+              if (fetchedComments && fetchedComments.documents) {
+                setComments(fetchedComments.documents)
+              } else {
+                setComments([]) // fallback if empty
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching comments:", error)
+              setComments([])
+            })
         } else {
-          navigate('/')
+          navigate("/")
         }
       })
     } else {
-      navigate('/')
+      navigate("/")
     }
   }, [slug, navigate])
 
@@ -59,7 +64,7 @@ appwriteService.getComments(fetchedPost.$id)
     appwriteService.deletePost(post.$id).then((status) => {
       if (status) {
         appwriteService.deleteFile(post.featuredImage)
-        navigate('/')
+        navigate("/")
       }
     })
   }
@@ -70,50 +75,49 @@ appwriteService.getComments(fetchedPost.$id)
     setTimeout(() => setShowShareToast(false), 3000)
   }
 
-const handleCommentSubmit = async (e) => {
-  e.preventDefault();
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault()
 
-  if (newComment.trim() && userData) {
-    const commentData = {
-      postId: post.$id,
-      userId: userData.$id,
-      userName: userData.name || "Anonymous", // optional, in case you want to display name
-      content: newComment.trim(),
-      createdAt: new Date().toISOString()
-    };
-
-    try {
-      const addedComment = await appwriteService.addComment(commentData);
-
-      if (addedComment) {
-        // Appwrite returns the full created document
-        setComments([addedComment, ...comments]);
-        setNewComment('');
+    if (newComment.trim() && userData) {
+      const commentData = {
+        postId: post.$id,
+        userId: userData.$id,
+        userName: userData.name || "Anonymous", // optional, in case you want to display name
+        content: newComment.trim(),
+        createdAt: new Date().toISOString(),
       }
-    } catch (error) {
-      console.error("Error adding comment:", error);
+
+      try {
+        const addedComment = await appwriteService.addComment(commentData)
+
+        if (addedComment) {
+          // Appwrite returns the full created document
+          setComments([addedComment, ...comments])
+          setNewComment("")
+        }
+      } catch (error) {
+        console.error("Error adding comment:", error)
+      }
     }
   }
-};
-
 
   const options = {
     replace: (domNode) => {
-      if (domNode.name === 'pre' && domNode.children[0].name === 'code') {
+      if (domNode.name === "pre" && domNode.children[0].name === "code") {
         const code = domNode.children[0].children[0].data
         const className = domNode.children[0].attribs.class
-        const language = className ? className.replace('language-', '') : 'javascript'
+        const language = className ? className.replace("language-", "") : "javascript"
         return (
           <SyntaxHighlighter language={language} style={tomorrow}>
             {code}
           </SyntaxHighlighter>
         )
       }
-    }
+    },
   }
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' }
+    const options = { year: "numeric", month: "long", day: "numeric" }
     return new Date(dateString).toLocaleDateString(undefined, options)
   }
 
@@ -141,7 +145,7 @@ const handleCommentSubmit = async (e) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-4xl"
+        className="container mx-auto px-1 sm:px-4 py-2 sm:py-8 max-w-4xl"
       >
         <motion.button
           whileHover={{ x: -5 }}
@@ -158,7 +162,7 @@ const handleCommentSubmit = async (e) => {
         >
           <div className="relative aspect-video">
             <img
-              src={appwriteService.getFileUrl(post.featuredImage)}
+              src={appwriteService.getFileUrl(post.featuredImage) || "/placeholder.svg"}
               alt={post.title}
               className="object-cover w-full h-full"
             />
@@ -179,12 +183,14 @@ const handleCommentSubmit = async (e) => {
               </div>
             )}
           </div>
-          <div className="p-4 sm:p-8">
-            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-4 sm:mb-6 text-gray-900 dark:text-white">{post.title}</h1>
-            <div className="flex flex-wrap items-center mb-4 sm:mb-6 text-sm sm:text-base text-gray-600 dark:text-gray-400 space-y-2 sm:space-y-0 sm:space-x-6">
+          <div className="p-4 sm:p-4">
+            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2 sm:mb-6 text-gray-900 dark:text-white">
+              {post.title}
+            </h1>
+            <div className="flex flex-wrap items-center mb-2 sm:mb-6 text-sm sm:text-base text-gray-600 dark:text-gray-400 space-y-2 sm:space-y-0 sm:space-x-6">
               <div className="flex items-center w-full sm:w-auto">
                 <User className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                <span>{author ? author.name : 'Loading...'}</span>
+                <span>{author ? author.name : "Loading..."}</span>
               </div>
               <div className="flex items-center w-full sm:w-auto">
                 <Calendar className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
@@ -204,7 +210,7 @@ const handleCommentSubmit = async (e) => {
                 Share
               </motion.button>
             </div>
-            <div className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none">
+            <div className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none prose-p:my-3 sm:prose-p:my-5 prose-headings:my-3 sm:prose-headings:my-6 prose-img:my-4 sm:prose-img:my-6">
               {parse(post.content, options)}
             </div>
           </div>
@@ -215,7 +221,7 @@ const handleCommentSubmit = async (e) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-8 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"
+          className="mt-4 sm:mt-8 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-2 sm:p-6"
         >
           <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Comments</h2>
           {userData ? (

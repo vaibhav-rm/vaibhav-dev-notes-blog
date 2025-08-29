@@ -1,0 +1,22 @@
+/* Responsive padding overrides for the global content wrapper to improve mobile spacing */
+.content-wrapper {
+  padding: 0.5rem; /* 8px on mobile */
+}
+
+@media (min-width: 640px) {
+  .content-wrapper {
+    padding: 1rem; /* 16px on small screens */
+  }
+}
+
+@media (min-width: 768px) {
+  .content-wrapper {
+    padding: 1.5rem; /* 24px on medium screens */
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-wrapper {
+    padding: 2rem; /* 32px on large screens */
+  }
+}
