@@ -12,5 +12,6 @@ import AuthLayout from './AuthLayout'
 import Button from './Button'
 import Input from './Input'
 import Select from './Select'
+import Skeleton, { PostCardSkeleton } from './Skeleton'
 
-export {Header, Footer, Input, Container, Button, AuthLayout, SignUp, Login, Logo, PostForm, PostCard,  LogoutBtn, RTE, Select}
+export {Header, Footer, Input, Container, Button, AuthLayout, SignUp, Login, Logo, PostForm, PostCard,  LogoutBtn, RTE, Select, Skeleton, PostCardSkeleton}

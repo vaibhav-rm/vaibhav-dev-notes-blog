@@ -5,11 +5,52 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { useSelector } from "react-redux"
 import parse from "html-react-parser"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, Edit2, Trash2, Calendar, User, Clock, Share2, Twitter, Linkedin, Copy } from "lucide-react"
+import { ChevronLeft, Edit2, Trash2, Calendar, User, Clock, Share2, Twitter, Linkedin, Copy, Check, ArrowUp } from "lucide-react"
 import appwriteService from "../appwrite/conf"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { Helmet } from "react-helmet"
+
+const CodeBlock = ({ code, language }) => {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="relative my-6 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 shadow-md">
+      <div className="text-xs text-gray-400 bg-gray-900/95 px-4 py-2 border-b border-gray-800 flex justify-between items-center select-none font-mono">
+        <span className="font-semibold text-gray-300">{language.toUpperCase()}</span>
+        <button
+          onClick={handleCopy}
+          className="flex items-center space-x-1 px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700/50 transition-all duration-200 focus:outline-none"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3.5 w-3.5 text-green-400" />
+              <span className="text-green-400 font-medium">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="h-3.5 w-3.5" />
+              <span className="font-medium">Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        language={language}
+        style={tomorrow}
+        customStyle={{ margin: 0, borderTopLeftRadius: 0, borderTopRightRadius: 0 }}
+      >
+        {code}
+      </SyntaxHighlighter>
+    </div>
+  )
+}
 
 export default function Post() {
   const [post, setPost] = useState(null)
@@ -19,6 +60,7 @@ export default function Post() {
   const [showShareToast, setShowShareToast] = useState(false)
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
+  const [showScrollTop, setShowScrollTop] = useState(false)
   const { slug } = useParams()
   const navigate = useNavigate()
 
@@ -26,13 +68,19 @@ export default function Post() {
 
   const isAuthor = post && userData ? post.userId === userData.$id : false
 
-  // Reading progress bar scroll listener
+  // Reading progress bar & back-to-top scroll listener
   useEffect(() => {
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight
       if (totalHeight > 0) {
         const progress = (window.scrollY / totalHeight) * 100
         setScrollProgress(progress)
+      }
+
+      if (window.scrollY > 400) {
+        setShowScrollTop(true)
+      } else {
+        setShowScrollTop(false)
       }
     }
 
@@ -172,9 +220,7 @@ export default function Post() {
         const className = domNode.children[0].attribs.class
         const language = className ? className.replace("language-", "") : "javascript"
         return (
-          <SyntaxHighlighter language={language} style={tomorrow}>
-            {code}
-          </SyntaxHighlighter>
+          <CodeBlock code={code} language={language} />
         )
       }
     },
@@ -507,6 +553,24 @@ export default function Post() {
           >
             Link copied to clipboard!
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Back to Top Button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="fixed bottom-20 right-6 p-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-xl z-50 border border-blue-500/20 backdrop-blur-sm"
+            title="Back to top"
+          >
+            <ArrowUp className="h-6 w-6" />
+          </motion.button>
         )}
       </AnimatePresence>
     </>
