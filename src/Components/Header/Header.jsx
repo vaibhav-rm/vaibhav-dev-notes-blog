@@ -8,7 +8,7 @@ import {logout} from '../../Store/authSlice'
 import DarkModeToggle from '../DarkModeToggle'
 
 
-function Header() {
+function Header({ darkMode, toggleDarkMode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const authStatus = useSelector((state) => state.auth.status)
   const navigate = useNavigate()
@@ -74,7 +74,7 @@ function Header() {
                   </button>
                 )
             )}
-            <DarkModeToggle />
+            <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
           </nav>
 
           <button
@@ -113,11 +113,14 @@ function Header() {
                 </button>
               )
           )}
-          <DarkModeToggle />
+          <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
           {authStatus && (
             <button
-              onClick={() => {/* Implement logout logic */}}
-              className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              onClick={() => {
+                logoutHandler();
+                toggleMobileMenu();
+              }}
+              className="flex w-full items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
             >
               <LogOut className="h-5 w-5" />
               <span>Logout</span>

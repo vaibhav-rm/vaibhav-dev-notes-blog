@@ -102,6 +102,7 @@ export default function PostForm({ post }) {
           onInput={(e) => {
             setValue("slug", slugTransform(e.currentTarget.value), { shouldValidate: true });
           }}
+          disabled={!!post}
         />
         <RTE label="Content :" name="content" control={control} defaultValue={getValues("content")} />
       </div>
