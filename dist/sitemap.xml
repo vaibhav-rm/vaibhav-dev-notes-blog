@@ -4,78 +4,25 @@
     <loc>https://vaibhavnotes.pages.dev/</loc>
     <priority>1.0</priority>
     <changefreq>daily</changefreq>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-09-24</lastmod>
   </url>
   <url>
     <loc>https://vaibhavnotes.pages.dev/all-posts</loc>
     <priority>0.8</priority>
     <changefreq>daily</changefreq>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-09-24</lastmod>
   </url>
   <url>
     <loc>https://vaibhavnotes.pages.dev/login</loc>
     <priority>0.5</priority>
     <changefreq>monthly</changefreq>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-09-24</lastmod>
   </url>
   <url>
     <loc>https://vaibhavnotes.pages.dev/signup</loc>
     <priority>0.5</priority>
     <changefreq>monthly</changefreq>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-09-24</lastmod>
   </url>
-    <url>
-    <loc>https://vaibhavnotes.pages.dev/post/first-blog-post-</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2024-10-16</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/how-i-structure-my-backend-projects</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2024-11-09</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/understanding-github-workflows</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2024-12-26</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/new-beginnings-at-rvce</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2025-08-30</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/react-native-installation-for-linux</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2025-08-30</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/protect-linux-system-from-hackers</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2025-11-08</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/a-retro-terminal-spotify-experience</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2025-12-02</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/frontend-without-backend</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2025-12-20</lastmod>
-  </url>
-  <url>
-    <loc>https://vaibhavnotes.pages.dev/post/what-is-ros-and-how-to-install-it-</loc>
-    <priority>0.6</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2025-12-20</lastmod>
-  </url>
+  
 </urlset>

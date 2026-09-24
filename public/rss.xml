@@ -5,79 +5,8 @@
     <link>https://vaibhavnotes.pages.dev</link>
     <description>Explore insightful articles on technology, programming, and more at Vaibhav Notes.</description>
     <language>en-us</language>
-    <lastBuildDate>Wed, 26 Aug 2026 12:28:39 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 24 Sep 2026 19:37:49 GMT</lastBuildDate>
     <atom:link href="https://vaibhavnotes.pages.dev/rss.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>First blog post!</title>
-      <link>https://vaibhavnotes.pages.dev/post/first-blog-post-</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/first-blog-post-</guid>
-      <pubDate>Tue, 15 Oct 2024 12:59:31 GMT</pubDate>
-      <description>My Journey in Tech: From Beginner to Building My Own Website
-Hey everyone! I&apos;m Vaibhav, a self-taught full-stack developer currently in my 5th semester of a diploma program. My journey in tech started a couple of years ago when I first got introduced...</description>
-    </item>
-    <item>
-      <title>How I structure my backend projects</title>
-      <link>https://vaibhavnotes.pages.dev/post/how-i-structure-my-backend-projects</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/how-i-structure-my-backend-projects</guid>
-      <pubDate>Mon, 21 Oct 2024 16:05:15 GMT</pubDate>
-      <description>As a full-stack developer, organizing my backend project structure is crucial for maintaining a clean, scalable, and efficient codebase. In this blog post, I&apos;ll walk you through the steps I took to set up my backend project, starting from the initial...</description>
-    </item>
-    <item>
-      <title>Understanding GitHub Workflows</title>
-      <link>https://vaibhavnotes.pages.dev/post/understanding-github-workflows</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/understanding-github-workflows</guid>
-      <pubDate>Thu, 26 Dec 2024 14:30:38 GMT</pubDate>
-      <description>Understanding GitHub Workflows: An Example with My Kivy App
-GitHub Actions is an amazing tool for automating repetitive tasks, running tests, or ensuring code quality. When I was building my Dcet-Prep-App Kivy app, I realized the importance of workfl...</description>
-    </item>
-    <item>
-      <title>New beginnings at RVCE</title>
-      <link>https://vaibhavnotes.pages.dev/post/new-beginnings-at-rvce</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/new-beginnings-at-rvce</guid>
-      <pubDate>Sat, 23 Aug 2025 19:07:37 GMT</pubDate>
-      <description>My Journey as a Lateral Entry Student at RV College of Engineering
-Starting a new chapter in life is always exciting, and for me, that chapter begins at RV College of Engineering (RVCE). I recently joined RVCE as a &amp;lt;em&amp;gt;lateral entry student&amp;lt;...</description>
-    </item>
-    <item>
-      <title>React Native Installation for Linux</title>
-      <link>https://vaibhavnotes.pages.dev/post/react-native-installation-for-linux</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/react-native-installation-for-linux</guid>
-      <pubDate>Sat, 30 Aug 2025 07:57:12 GMT</pubDate>
-      <description>React Native Installation Guide for Linux Users
-React Native is one of the most popular frameworks for building cross-platform mobile applications using JavaScript and React. If you are a Linux user, setting it up might feel overwhelming at first, bu...</description>
-    </item>
-    <item>
-      <title>Protect Linux System from Hackers</title>
-      <link>https://vaibhavnotes.pages.dev/post/protect-linux-system-from-hackers</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/protect-linux-system-from-hackers</guid>
-      <pubDate>Sat, 08 Nov 2025 06:20:24 GMT</pubDate>
-      <description>How to Protect Your Linux System from Hackers and Port Scanners
-Linux is known for its security and stability &amp;mdash; but no system is truly safe out of the box. Hackers constantly scan the internet for open ports, weak SSH configurations, and outdat...</description>
-    </item>
-    <item>
-      <title>A Retro Terminal Spotify Experience</title>
-      <link>https://vaibhavnotes.pages.dev/post/a-retro-terminal-spotify-experience</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/a-retro-terminal-spotify-experience</guid>
-      <pubDate>Tue, 02 Dec 2025 17:54:08 GMT</pubDate>
-      <description>
-🎵 RetroSpotify &amp;mdash; A Retro Terminal Spotify Experience
-Music streaming has taken over our desktops, browsers, and phones &amp;mdash; but what about the terminal? RetroSpotify brings Spotify right into the command line with a beautifully crafted Tex...</description>
-    </item>
-    <item>
-      <title>Frontend Without Backend </title>
-      <link>https://vaibhavnotes.pages.dev/post/frontend-without-backend</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/frontend-without-backend</guid>
-      <pubDate>Sat, 20 Dec 2025 19:52:23 GMT</pubDate>
-      <description>Frontend Without Backend: Firebase, Supabase, or Appwrite?
-Modern frontend developers no longer need to build and maintain complex backend servers for every application. Platforms like Firebase, Supabase, and Appwrite provide ready-made backend servi...</description>
-    </item>
-    <item>
-      <title>What is ROS and How to install it?</title>
-      <link>https://vaibhavnotes.pages.dev/post/what-is-ros-and-how-to-install-it-</link>
-      <guid isPermaLink="true">https://vaibhavnotes.pages.dev/post/what-is-ros-and-how-to-install-it-</guid>
-      <pubDate>Sat, 20 Dec 2025 20:00:52 GMT</pubDate>
-      <description>What is ROS (Robot Operating System) and How to Install It on Ubuntu
-ROS (Robot Operating System) is an open-source framework that helps developers build, control, and manage robot software efficiently. Despite its name, ROS is not a traditional oper...</description>
-    </item>
+
   </channel>
 </rss>

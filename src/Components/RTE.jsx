@@ -11,10 +11,11 @@ export default function RTE({name, control, label, defaultValue= ""}) {
     <Controller
     name={name || "content"}
     control={control} 
-    render={({field: {onChange}})=>(
+    render={({field: {onChange, value}})=>(
         <Editor
         apiKey={config.tinyMceApi}
         initialValue={defaultValue}
+        value={value !== undefined ? value : defaultValue}
         init={{
             initialValue: defaultValue,
             height: 500,
