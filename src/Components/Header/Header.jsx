@@ -6,6 +6,7 @@ import {useDispatch} from 'react-redux'
 import authService from '../../appwrite/auth'
 import {logout} from '../../Store/authSlice'
 import DarkModeToggle from '../DarkModeToggle'
+import Logo from '../Logo'
 
 
 function Header({ darkMode, toggleDarkMode }) {
@@ -66,7 +67,7 @@ function Header({ darkMode, toggleDarkMode }) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl text-gray-900 dark:text-white">Vaibhav Dev Notes</span>
+            <Logo />
           </Link>
 
           <nav aria-label="Main" className="hidden md:flex items-center space-x-4">
