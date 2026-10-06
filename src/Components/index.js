@@ -14,5 +14,9 @@ import Input from './Input'
 import Select from './Select'
 import Skeleton, { PostCardSkeleton } from './Skeleton'
 import SEO from './SEO'
+import PostGrid from './PostGrid'
+import TagInput from './TagInput'
+import CategorySelect from './CategorySelect'
+import TaxonomyFilter from './TaxonomyFilter'
 
-export {Header, Footer, Input, Container, Button, AuthLayout, SignUp, Login, Logo, PostForm, PostCard,  LogoutBtn, RTE, Select, Skeleton, PostCardSkeleton, SEO}
+export {Header, Footer, Input, Container, Button, AuthLayout, SignUp, Login, Logo, PostForm, PostCard,  LogoutBtn, RTE, Select, Skeleton, PostCardSkeleton, SEO, PostGrid, TagInput, CategorySelect, TaxonomyFilter}

@@ -1,5 +1,54 @@
 import config from '../config/config'
 import { Client, ID, Databases, Storage, Query, Account, Functions,Permission, Role } from "appwrite"
+import { normalizeCategory, normalizeTags } from '../lib/taxonomy'
+
+/**
+ * The `category` and `tags` attributes are optional in the Appwrite collection.
+ * Sending them to a collection that has not been migrated yet makes Appwrite
+ * reject the whole write, so we only include them when there is something to
+ * save, and strip them from the retry if the server reports them unknown.
+ */
+const taxonomyFields = ({ category, tags }) => {
+    const fields = {}
+    const normalizedCategory = normalizeCategory(category)
+    if (normalizedCategory) fields.category = normalizedCategory
+
+    const normalizedTags = normalizeTags(tags)
+    if (normalizedTags.length) fields.tags = normalizedTags
+
+    return fields
+}
+
+const isUnknownAttributeError = (error, keys) => {
+    const message = String(error?.message || error)
+    return keys.some(
+        (key) =>
+            message.includes(`Attribute "${key}"`) ||
+            message.includes(`attribute "${key}" is not found`) ||
+            (message.includes('Unknown attribute') && message.includes(key))
+    )
+}
+
+/**
+ * Runs `write(payload)`, and if Appwrite rejects the document because the
+ * optional taxonomy attributes do not exist in the collection yet, retries once
+ * without them. Keeps publishing working before `npm run setup:schema` has run.
+ */
+const writeWithTaxonomyFallback = async (write, payload, taxonomyKeys) => {
+    try {
+        return await write(payload)
+    } catch (error) {
+        if (!isUnknownAttributeError(error, taxonomyKeys)) throw error
+
+        const stripped = { ...payload }
+        for (const key of taxonomyKeys) delete stripped[key]
+        console.warn(
+            `Appwrite Service :: optional attribute(s) ${taxonomyKeys.join(', ')} not found in the ` +
+                'posts collection — run `npm run setup:schema`. Post saved without them.'
+        )
+        return await write(stripped)
+    }
+}
 
 export class Service {
     client = new Client();
@@ -19,19 +68,27 @@ export class Service {
         this.functions = new Functions(this.client);
     }
 
-    async createPost({ title, slug, content, featuredImage, status, userId }) {
+    async createPost({ title, slug, content, featuredImage, status, userId, category, tags }) {
+        const payload = {
+            title,
+            content,
+            featuredImage,
+            status,
+            userId,
+            ...taxonomyFields({ category, tags }),
+        }
+
         try {
-            return await this.databases.createDocument(
-                config.appwriteDatabaseId,
-                config.appwriteCollectionId,
-                slug,
-                {
-                    title,
-                    content,
-                    featuredImage,
-                    status,
-                    userId
-                }
+            return await writeWithTaxonomyFallback(
+                (data) =>
+                    this.databases.createDocument(
+                        config.appwriteDatabaseId,
+                        config.appwriteCollectionId,
+                        slug,
+                        data
+                    ),
+                payload,
+                ['category', 'tags']
             );
         } catch (error) {
             console.log("Appwrite Service :: createPost :: error", error);
@@ -48,18 +105,26 @@ export class Service {
         }
     }
 
-    async updatePost(slug, { title, content, featuredImage, status }) {
+    async updatePost(slug, { title, content, featuredImage, status, category, tags }) {
+        const payload = {
+            title,
+            content,
+            featuredImage,
+            status,
+            ...taxonomyFields({ category, tags }),
+        }
+
         try {
-            return await this.databases.updateDocument(
-                config.appwriteDatabaseId,
-                config.appwriteCollectionId,
-                slug,
-                {
-                    title,
-                    content,
-                    featuredImage,
-                    status,
-                }
+            return await writeWithTaxonomyFallback(
+                (data) =>
+                    this.databases.updateDocument(
+                        config.appwriteDatabaseId,
+                        config.appwriteCollectionId,
+                        slug,
+                        data
+                    ),
+                payload,
+                ['category', 'tags']
             );
         } catch (error) {
             console.log("Appwrite Service :: updatePost :: error", error);

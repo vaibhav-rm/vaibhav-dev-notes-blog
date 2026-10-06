@@ -1,15 +1,25 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { useSelector } from "react-redux"
 import parse from "html-react-parser"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, Edit2, Trash2, Calendar, User, Clock, Share2, Twitter, Linkedin, Copy, Check, ArrowUp } from "lucide-react"
+import { ChevronLeft, ChevronRight, Edit2, Trash2, Calendar, User, Clock, Share2, Twitter, Linkedin, Copy, Check, ArrowUp, Tag as TagIcon } from "lucide-react"
 import appwriteService from "../appwrite/conf"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
-import { SEO } from "../Components"
+import SEO from "../Components/SEO"
+import PostGrid from "../Components/PostGrid"
+import { useAllPosts } from "../lib/useAllPosts"
+import {
+  CATEGORY_BY_SLUG,
+  postCategorySlug,
+  postTags,
+  relatedPosts,
+  slugify,
+  sortByDateDesc,
+} from "../lib/taxonomy"
 import { SITE_NAME, SITE_URL, excerpt, postUrl, readingTime } from "../config/site"
 
 const CodeBlock = ({ code, language }) => {
@@ -63,6 +73,7 @@ export default function Post() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const { slug } = useParams()
+  const { posts: allPosts } = useAllPosts()
   const navigate = useNavigate()
 
   const userData = useSelector((state) => state.auth.userData)
@@ -261,6 +272,19 @@ export default function Post() {
     })
   }
 
+  // Neighbours in publication order, so crawlers can walk the whole archive one
+  // hop at a time instead of only reaching posts from the homepage.
+  const { newer, older, related } = useMemo(() => {
+    const ordered = sortByDateDesc(allPosts)
+    if (!post) return { newer: null, older: null, related: [] }
+    const index = ordered.findIndex((entry) => entry.$id === post.$id)
+    return {
+      newer: index > 0 ? ordered[index - 1] : null,
+      older: index >= 0 && index < ordered.length - 1 ? ordered[index + 1] : null,
+      related: relatedPosts(post, ordered, 3),
+    }
+  }, [allPosts, post])
+
   if (!post) {
     return (
       <>
@@ -282,6 +306,24 @@ export default function Post() {
     : `${SITE_URL}/og-image.png`
   const wordCount = post.content ? post.content.split(/\s+/).filter(Boolean).length : 0
 
+  const categorySlug = postCategorySlug(post)
+  const categoryName = CATEGORY_BY_SLUG[categorySlug]?.name
+  const tags = postTags(post)
+
+  const breadcrumbItems = [
+    { name: "Home", item: `${SITE_URL}/` },
+    { name: "All Posts", item: `${SITE_URL}/all-posts` },
+    ...(categorySlug
+      ? [
+          {
+            name: categoryName || categorySlug,
+            item: `${SITE_URL}/categories/${categorySlug}`,
+          },
+        ]
+      : []),
+    { name: post.title, item: canonical },
+  ]
+
   const schemaData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -301,6 +343,8 @@ export default function Post() {
         timeRequired: `PT${readingTime(post.content)}M`,
         isAccessibleForFree: true,
         inLanguage: "en",
+        keywords: tags.length ? tags.join(", ") : undefined,
+        articleSection: categoryName || undefined,
         author: {
           "@type": "Person",
           name: authorName,
@@ -322,26 +366,12 @@ export default function Post() {
       },
       {
         "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: `${SITE_URL}/`,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "All Posts",
-            item: `${SITE_URL}/all-posts`,
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: post.title,
-            item: canonical,
-          },
-        ],
+        itemListElement: breadcrumbItems.map((crumb, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: crumb.name,
+          item: crumb.item,
+        })),
       },
     ],
   }
@@ -357,6 +387,8 @@ export default function Post() {
         publishedTime={publishedTime}
         modifiedTime={modifiedTime}
         author={authorName}
+        section={categoryName}
+        tags={tags}
         schema={schemaData}
       />
 
@@ -381,6 +413,45 @@ export default function Post() {
         >
           <ChevronLeft className="mr-2 h-5 w-5" /> Back
         </motion.button>
+
+        <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6">
+          <ol className="flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <li>
+              <Link to="/" className="hover:text-blue-600 dark:hover:text-blue-400">
+                Home
+              </Link>
+            </li>
+            <li aria-hidden="true">
+              <ChevronRight className="h-3.5 w-3.5" />
+            </li>
+            <li>
+              <Link to="/all-posts" className="hover:text-blue-600 dark:hover:text-blue-400">
+                All Posts
+              </Link>
+            </li>
+            {categorySlug && (
+              <>
+                <li aria-hidden="true">
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </li>
+                <li>
+                  <Link
+                    to={`/categories/${categorySlug}`}
+                    className="hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    {categoryName || categorySlug}
+                  </Link>
+                </li>
+              </>
+            )}
+            <li aria-hidden="true">
+              <ChevronRight className="h-3.5 w-3.5" />
+            </li>
+            <li className="truncate font-medium text-gray-800 dark:text-gray-200 max-w-[16rem] sm:max-w-xs">
+              {post.title}
+            </li>
+          </ol>
+        </nav>
 
         <div className={headings.length > 0 ? "lg:grid lg:grid-cols-4 lg:gap-8 items-start" : ""}>
           <div className={headings.length > 0 ? "lg:col-span-3 space-y-6" : "max-w-4xl mx-auto space-y-6"}>
@@ -498,8 +569,96 @@ export default function Post() {
                 <div className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none prose-p:my-3 sm:prose-p:my-5 prose-headings:my-3 sm:prose-headings:my-6 prose-img:my-4 sm:prose-img:my-6">
                   {parse(injectHeadingIds(post.content), options)}
                 </div>
+
+                {(categorySlug || tags.length > 0) && (
+                  <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                    {categorySlug && (
+                      <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Filed under
+                        </span>
+                        <Link
+                          to={`/categories/${categorySlug}`}
+                          className="rounded-full bg-blue-100 dark:bg-blue-900/40 px-3 py-1 text-sm font-medium text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800/60 transition-colors"
+                        >
+                          {categoryName || categorySlug}
+                        </Link>
+                      </div>
+                    )}
+                    {tags.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          <TagIcon className="mr-1 inline h-3.5 w-3.5" />
+                          Tags
+                        </span>
+                        {tags.map((tag) => (
+                          <Link
+                            key={tag}
+                            to={`/tags/${slugify(tag)}`}
+                            className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          >
+                            #{tag}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.article>
+
+            {/* Previous / next — gives crawlers a walkable path through the archive */}
+            {(newer || older) && (
+              <nav
+                aria-label="Adjacent posts"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+              >
+                {older ? (
+                  <Link
+                    to={`/post/${older.$id}`}
+                    className="group rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:border-blue-400 transition-colors"
+                    rel="prev"
+                  >
+                    <span className="flex items-center text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      <ChevronLeft className="mr-1 h-3.5 w-3.5" />
+                      Previous
+                    </span>
+                    <span className="mt-1 block font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {older.title}
+                    </span>
+                  </Link>
+                ) : (
+                  <span aria-hidden="true" />
+                )}
+                {newer && (
+                  <Link
+                    to={`/post/${newer.$id}`}
+                    className="group rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-right hover:border-blue-400 transition-colors"
+                    rel="next"
+                  >
+                    <span className="flex items-center justify-end text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Next
+                      <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                    </span>
+                    <span className="mt-1 block font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {newer.title}
+                    </span>
+                  </Link>
+                )}
+              </nav>
+            )}
+
+            {related.length > 0 && (
+              <section aria-labelledby="related-heading">
+                <h2
+                  id="related-heading"
+                  className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+                >
+                  Related articles
+                </h2>
+                <PostGrid posts={related} columns="lg:grid-cols-3" />
+              </section>
+            )}
 
             {/* Comment Section */}
             <motion.section

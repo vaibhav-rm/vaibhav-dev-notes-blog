@@ -39,7 +39,46 @@ variable silently degrades the site.
 | `VITE_FUNCTION_ID` | Cloud function id |
 | `VITE_EDITOR_API` | TinyMCE API key |
 | `VITE_GA_MEASUREMENT_ID` | GA4 id. Unset ⇒ analytics is fully disabled. |
-| `APPWRITE_API_KEY` | Build-script only. Needed **only** if the posts collection is not publicly readable. |
+| `APPWRITE_API_KEY` | Build/setup script only. Needed if the posts collection is not publicly readable, and always needed for `npm run setup:schema`. |
+
+## Categories and tags
+
+Posts carry one `category` and any number of `tags`. Both attributes are **optional**,
+so the schema has to be created once:
+
+```bash
+# 1. In Appwrite Console → Integrations → API Keys, create a key with
+#    database read/write scope and add it to .env:
+#    APPWRITE_API_KEY=...
+
+# 2. Add the attributes and backfill your existing posts:
+npm run setup:schema -- --seed
+```
+
+This creates `category` (string, 64) and `tags` (string array, 32) and suggests a
+category plus tags for each post published before this existed.
+
+The app works before the migration runs: `/tags` and `/categories` render, the
+sitemap skips taxonomy URLs it cannot find, and saving a post retries once without
+the missing attributes rather than failing.
+
+### Routes
+
+| Route | Indexed | Purpose |
+| --- | --- | --- |
+| `/tags` | yes | Every tag with post counts |
+| `/tags/:slug` | yes | Posts with one tag |
+| `/categories` | yes | Every category with post counts |
+| `/categories/:slug` | yes | Posts in one category |
+
+Tag and category URLs are emitted into `sitemap.xml` by `scripts/generate-seo.js`
+and carry `CollectionPage` + `ItemList` JSON-LD. Adding a tag to a post creates a
+new indexable URL on the next build, which is why the tag cloud and filters on the
+homepage are real links rather than buttons.
+
+`src/lib/taxonomy.js` owns the vocabulary: `CATEGORIES` is the editorial
+taxonomy, and the `normalize*` helpers make the site tolerant of a collection that
+has no taxonomy data at all.
 
 ### Changing the domain
 
@@ -60,6 +99,8 @@ sitemap, feed and robots.txt are regenerated from `VITE_SITE_URL` on every build
   the page ends up with two conflicting canonicals.
 - Loading/auth-gated states render `noindex` so a crawler that catches one
   mid-load never indexes the wrong URL.
+- Post pages carry previous/next links and related posts so the archive is
+  walkable one hop at a time, instead of only reachable from the homepage.
 
 ## Keeping the sitemap honest
 

@@ -31,6 +31,16 @@ function Header({ darkMode, toggleDarkMode }) {
       active: true,
     },
     {
+      name: 'Categories',
+      slug: '/categories',
+      active: true,
+    },
+    {
+      name: 'Tags',
+      slug: '/tags',
+      active: true,
+    },
+    {
       name: 'Login',
       slug: '/login',
       active: !authStatus,

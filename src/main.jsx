@@ -9,6 +9,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AuthLayout, Login, SignUp, SEO } from './Components/index.js'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
+import Tags from './pages/Tags'
+import Categories from './pages/Categories'
 
 // Writer/admin screens are never the public entry point. Keeping them out of
 // the initial bundle takes TinyMCE + auth churn off the critical path.
@@ -16,6 +18,8 @@ const AllPost = lazy(() => import('./pages/AllPost.jsx'))
 const AddPost = lazy(() => import('./pages/AddPost.jsx'))
 const EditPost = lazy(() => import('./pages/EditPost.jsx'))
 const Post = lazy(() => import('./pages/Post'))
+const Tag = lazy(() => import('./pages/Tag'))
+const Category = lazy(() => import('./pages/Category'))
 
 function RouteFallback() {
   // While a route chunk loads we cannot know the page's real title or canonical,
@@ -60,6 +64,30 @@ const router = createBrowserRouter([  {
         element: (
           <Suspense fallback={<RouteFallback />}>
             <AllPost />
+          </Suspense>
+        )
+      },
+      {
+        path: 'tags',
+        element: <Tags />
+      },
+      {
+        path: 'tags/:slug',
+        element: (
+          <Suspense fallback={<RouteFallback />}>
+            <Tag />
+          </Suspense>
+        )
+      },
+      {
+        path: 'categories',
+        element: <Categories />
+      },
+      {
+        path: 'categories/:slug',
+        element: (
+          <Suspense fallback={<RouteFallback />}>
+            <Category />
           </Suspense>
         )
       },

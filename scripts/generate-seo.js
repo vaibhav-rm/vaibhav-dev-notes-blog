@@ -64,6 +64,57 @@ const stripHtml = (html) =>
 
 const escapeCdata = (value) => String(value ?? '').replace(/]]>/g, ']]]]><![CDATA[>')
 
+const slugify = (value) =>
+  String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+
+const normalizeTags = (tags) => {
+  const list = Array.isArray(tags) ? tags : typeof tags === 'string' ? tags.split(',') : []
+  const seen = new Set()
+  const out = []
+  for (const raw of list) {
+    const tag = String(raw ?? '').trim()
+    const key = slugify(tag)
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    out.push(tag)
+  }
+  return out
+}
+
+const normalizeCategory = (category) => slugify(category)
+
+/** Newest lastmod per taxonomy page, so the date reflects a real edit. */
+function taxonomyIndex(posts) {
+  const tags = new Map()
+  const categories = new Map()
+
+  for (const post of posts) {
+    const stamp = toDate(post.$updatedAt) || toDate(post.$createdAt)
+
+    for (const tag of normalizeTags(post.tags)) {
+      const key = slugify(tag)
+      const entry = tags.get(key) || { slug: key, name: tag, lastmod: stamp }
+      if (!entry.lastmod || (stamp && stamp > entry.lastmod)) entry.lastmod = stamp
+      tags.set(key, entry)
+    }
+
+    const category = normalizeCategory(post.category)
+    if (category) {
+      const entry = categories.get(category) || { slug: category, lastmod: stamp }
+      if (!entry.lastmod || (stamp && stamp > entry.lastmod)) entry.lastmod = stamp
+      categories.set(category, entry)
+    }
+  }
+
+  return { tags, categories }
+}
+
 async function fetchPosts() {
   if (!appwriteUrl || !projectId || !databaseId || !collectionId) {
     console.warn('[SEO] Appwrite env vars missing — emitting static routes only.')
@@ -156,6 +207,8 @@ async function generateSeo() {
   const staticRoutes = [
     { loc: '/', lastmod: today },
     { loc: '/all-posts', lastmod: today },
+    { loc: '/tags', lastmod: today },
+    { loc: '/categories', lastmod: today },
   ]
 
   const postRoutes = posts.map((post) => ({
@@ -163,7 +216,20 @@ async function generateSeo() {
     lastmod: toDate(post.$updatedAt) || toDate(post.$createdAt) || today,
   }))
 
-  const allRoutes = [...staticRoutes, ...postRoutes]
+  const { tags, categories } = taxonomyIndex(posts)
+
+  const taxonomyRoutes = [
+    ...[...tags.values()].map((tag) => ({
+      loc: `/tags/${tag.slug}`,
+      lastmod: tag.lastmod || today,
+    })),
+    ...[...categories.values()].map((category) => ({
+      loc: `/categories/${category.slug}`,
+      lastmod: category.lastmod || today,
+    })),
+  ]
+
+  const allRoutes = [...staticRoutes, ...taxonomyRoutes, ...postRoutes]
 
   // priority and changefreq are ignored by Google and only add noise.
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
@@ -236,7 +302,7 @@ Sitemap: ${SITE_URL}/sitemap.xml
   fs.writeFileSync(path.join(publicDir, 'robots.txt'), robotsContent)
 
   console.log(
-    `[SEO] Wrote sitemap.xml (${allRoutes.length} URLs), rss.xml (${sorted.length} items), robots.txt`
+    `[SEO] Wrote sitemap.xml (${allRoutes.length} URLs: ${postRoutes.length} posts, ${tags.size} tags, ${categories.size} categories), rss.xml (${sorted.length} items), robots.txt`
   )
 }
 

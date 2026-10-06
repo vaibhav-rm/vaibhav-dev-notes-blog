@@ -5,6 +5,8 @@ import { Search } from 'lucide-react'
 import { PostCard, PostCardSkeleton, SEO } from '../Components'
 import appwriteService from '../appwrite/conf'
 import site, { SITE_NAME, SITE_URL } from '../config/site'
+import { postTags, postCategorySlug, slugify } from '../lib/taxonomy'
+import TaxonomyFilter from '../Components/TaxonomyFilter'
 import '../App.css'
 
 const POSTS_CACHE_KEY = 'blogPosts'
@@ -49,6 +51,8 @@ const homeSchema = {
 function Home() {
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState('')
+  const [activeTag, setActiveTag] = useState('')
 
   const { data: posts, isLoading, error } = useQuery(
     POSTS_CACHE_KEY,
@@ -82,13 +86,21 @@ function Home() {
   const filteredPosts = useMemo(() => {
     if (!posts) return []
     const query = searchQuery.trim().toLowerCase()
-    if (!query) return posts
-    return posts.filter(
-      (post) =>
-        post.title?.toLowerCase().includes(query) ||
-        post.content?.toLowerCase().includes(query)
-    )
-  }, [posts, searchQuery])
+
+    return posts.filter((post) => {
+      if (query) {
+        const matchesQuery =
+          post.title?.toLowerCase().includes(query) ||
+          post.content?.toLowerCase().includes(query)
+        if (!matchesQuery) return false
+      }
+      if (activeCategory && postCategorySlug(post) !== activeCategory) return false
+      if (activeTag && !postTags(post).some((tag) => slugify(tag) === activeTag)) {
+        return false
+      }
+      return true
+    })
+  }, [posts, searchQuery, activeCategory, activeTag])
 
   const body = (() => {
     if (isLoading) {
@@ -166,6 +178,14 @@ function Home() {
           </div>
         </div>
 
+        <TaxonomyFilter
+          posts={posts}
+          activeCategory={activeCategory}
+          activeTag={activeTag}
+          onSelectCategory={setActiveCategory}
+          onSelectTag={setActiveTag}
+        />
+
         {filteredPosts.length > 0 ? (
           <motion.div
             initial={{ y: 50, opacity: 0 }}
@@ -188,8 +208,19 @@ function Home() {
         ) : (
           <div className="text-center py-12">
             <h3 className="text-xl text-gray-500 dark:text-gray-400">
-              No posts match your search query.
+              No posts match your filters.
             </h3>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('')
+                setActiveCategory('')
+                setActiveTag('')
+              }}
+              className="mt-4 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Clear all filters
+            </button>
           </div>
         )}
       </motion.div>

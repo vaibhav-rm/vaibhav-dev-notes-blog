@@ -5,8 +5,9 @@ import { motion } from "framer-motion"
 import { Calendar, User, ArrowRight, Clock } from "lucide-react"
 import appwriteService from "../appwrite/conf"
 import { excerpt, readingTime } from "../config/site"
+import { postTags, postCategorySlug, slugify, CATEGORY_BY_SLUG } from "../lib/taxonomy"
 
-function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
+function PostCard({ $id, title, featuredImage, content, $createdAt, userId, category, tags }) {
   const { data: author, isLoading: authorLoading } = useQuery(
     ["author", userId],
     () => appwriteService.getUserDetails(userId),
@@ -18,6 +19,9 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
 
   const summary = excerpt(content, 220)
   const readMinutes = readingTime(content)
+  const categorySlug = postCategorySlug({ category })
+  const categoryName = CATEGORY_BY_SLUG[categorySlug]?.name
+  const cardTags = postTags({ tags }).slice(0, 3)
 
   return (
     <motion.div
@@ -48,6 +52,25 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
         </motion.div>
       </motion.div>
       <div className="p-3 sm:p-6 flex flex-col flex-grow">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          {categorySlug && (
+            <Link
+              to={`/categories/${categorySlug}`}
+              className="rounded-full bg-blue-100 dark:bg-blue-900/40 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800/60 transition-colors"
+            >
+              {categoryName || categorySlug}
+            </Link>
+          )}
+          {cardTags.map((tag) => (
+            <Link
+              key={tag}
+              to={`/tags/${slugify(tag)}`}
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              #{tag}
+            </Link>
+          ))}
+        </div>
         <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2 line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
           <Link to={`/post/${$id}`}>{title}</Link>
         </h2>

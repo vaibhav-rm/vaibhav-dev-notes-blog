@@ -1,11 +1,14 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button, Input, Select, RTE } from '../index'
+import TagInput from '../TagInput'
+import CategorySelect from '../CategorySelect'
 import appwriteService from '../../appwrite/conf'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import LoadingSpinner from '../LoadingSpinner'
 import { AlertCircle, AlertTriangle } from 'lucide-react'
+import { normalizeTags, postCategorySlug } from '../../lib/taxonomy'
 
 export default function PostForm({ post }) {
   const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
@@ -14,6 +17,7 @@ export default function PostForm({ post }) {
       slug: post?.$id || "",
       content: post?.content || '',
       status: post?.status || 'active',
+      category: postCategorySlug(post),
     }
   })
 
@@ -21,6 +25,7 @@ export default function PostForm({ post }) {
   const userData = useSelector(state => state.auth.userData)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [tags, setTags] = useState(() => normalizeTags(post?.tags))
 
   const watchContent = watch('content') || ''
   const contentLength = watchContent.length
@@ -43,6 +48,8 @@ export default function PostForm({ post }) {
     setLoading(true)
     let newFile = null
     try {
+      const taxonomy = { category: data.category || '', tags }
+
       if (post) {
         if (data.image && data.image[0]) {
           newFile = await appwriteService.uploadFile(data.image[0])
@@ -50,6 +57,7 @@ export default function PostForm({ post }) {
 
         const dbPost = await appwriteService.updatePost(post.$id, {
           ...data,
+          ...taxonomy,
           featuredImage: newFile ? newFile.$id : post.featuredImage,
         })
 
@@ -61,11 +69,17 @@ export default function PostForm({ post }) {
           navigate(`/post/${dbPost.$id}`)
         }
       } else {
+        if (!data.image || !data.image[0]) {
+          setErrorMsg('Please choose a featured image before publishing.')
+          setLoading(false)
+          return
+        }
         newFile = await appwriteService.uploadFile(data.image[0])
         if (newFile) {
           data.featuredImage = newFile.$id
           const dbPost = await appwriteService.createPost({
             ...data,
+            ...taxonomy,
             userId: userData.$id
           })
           if (dbPost) {
@@ -99,7 +113,7 @@ export default function PostForm({ post }) {
     return ''
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name === 'title') {
         setValue('slug', slugTransform(value.title, { shouldValidate: true }))
@@ -214,6 +228,11 @@ export default function PostForm({ post }) {
             className="mb-4"
             {...register("status", { required: true })}
           />
+          <CategorySelect
+            value={getValues('category') || ''}
+            onChange={(next) => setValue('category', next, { shouldDirty: true })}
+          />
+          <TagInput value={tags} onChange={setTags} />
           <Button
             type="submit"
             bgColor={post ? "bg-green-600" : "bg-blue-600"}

@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Search } from 'lucide-react'
 import appwriteService from '../appwrite/conf'
-import { Container, PostCard, PostCardSkeleton, SEO } from '../Components'
+import { Container, PostCard, PostCardSkeleton, SEO, TaxonomyFilter } from '../Components'
 import { SITE_URL, postUrl } from '../config/site'
+import { postTags, postCategorySlug, slugify } from '../lib/taxonomy'
 
 const PAGE_DESCRIPTION =
     'Every article published on Vaibhav Notes, in one searchable archive — backend architecture, Linux, DevOps and React.'
@@ -11,6 +12,8 @@ function AllPost() {
     const [posts, setPost] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [activeCategory, setActiveCategory] = useState('');
+    const [activeTag, setActiveTag] = useState('');
 
     useEffect(() => {
         appwriteService.getPosts([]).then((posts) => {
@@ -26,12 +29,20 @@ function AllPost() {
 
     const filteredPosts = useMemo(() => {
         const query = searchQuery.trim().toLowerCase()
-        if (!query) return posts
-        return posts.filter((post) =>
-            post.title?.toLowerCase().includes(query) ||
-            post.content?.toLowerCase().includes(query)
-        )
-    }, [posts, searchQuery])
+        return posts.filter((post) => {
+          if (query) {
+            const matchesQuery =
+              post.title?.toLowerCase().includes(query) ||
+              post.content?.toLowerCase().includes(query)
+            if (!matchesQuery) return false
+          }
+          if (activeCategory && postCategorySlug(post) !== activeCategory) return false
+          if (activeTag && !postTags(post).some((tag) => slugify(tag) === activeTag)) {
+            return false
+          }
+          return true
+        })
+      }, [posts, searchQuery, activeCategory, activeTag])
 
     const itemListSchema = {
         '@context': 'https://schema.org',
@@ -74,6 +85,14 @@ function AllPost() {
                         </div>
                     </div>
 
+                    <TaxonomyFilter
+                        posts={posts}
+                        activeCategory={activeCategory}
+                        activeTag={activeTag}
+                        onSelectCategory={setActiveCategory}
+                        onSelectTag={setActiveTag}
+                    />
+
                     {isLoading ? (
                         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
                             {Array.from({ length: 8 }).map((_, idx) => (
@@ -89,8 +108,19 @@ function AllPost() {
                     ) : (
                         <div className="text-center py-12">
                             <h3 className="text-xl text-gray-500 dark:text-gray-400">
-                                No posts match your search query.
+                                No posts match your filters.
                             </h3>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSearchQuery('')
+                                    setActiveCategory('')
+                                    setActiveTag('')
+                                }}
+                                className="mt-4 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                                Clear all filters
+                            </button>
                         </div>
                     )}
                 </Container>
