@@ -1,13 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Helmet } from 'react-helmet'
+import SEO from './SEO'
 import { login as authLogin } from '../Store/authSlice'
 import { Button, Input, Logo } from './index'
 import authService from '../appwrite/auth'
 import { useForm } from 'react-hook-form'
-import LoadingSpinner from './LoadingSpinner'
 import Skeleton from './Skeleton'
 
 function Login() {
@@ -50,11 +49,12 @@ function Login() {
 
     return (
         <>
-            <Helmet>
-                <title>Login | Vaibhav Notes</title>
-                <meta name="description" content="Sign in to your Vaibhav Notes account to write posts and leave comments." />
-                <link rel="canonical" href="https://vaibhavnotes.pages.dev/login" />
-            </Helmet>
+            <SEO
+                title="Sign in"
+                description="Sign in to your Vaibhav Notes account to write posts and leave comments."
+                path="/login"
+                noindex
+            />
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

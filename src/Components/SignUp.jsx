@@ -1,13 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Helmet } from 'react-helmet'
+import SEO from './SEO'
 import authService from '../appwrite/auth'
 import { Link, useNavigate } from 'react-router-dom'
 import { login } from '../Store/authSlice'
 import { Button, Input, Logo } from './index'
 import { useDispatch } from 'react-redux'
 import { useForm } from 'react-hook-form'
-import LoadingSpinner from './LoadingSpinner'
 import Skeleton from './Skeleton'
 
 function SignUp() {
@@ -51,11 +50,12 @@ function SignUp() {
 
     return (
         <>
-            <Helmet>
-                <title>Create Account | Vaibhav Notes</title>
-                <meta name="description" content="Register an account on Vaibhav Notes to start writing blog posts and sharing notes." />
-                <link rel="canonical" href="https://vaibhavnotes.pages.dev/signup" />
-            </Helmet>
+            <SEO
+                title="Create account"
+                description="Register an account on Vaibhav Notes to start writing blog posts and sharing notes."
+                path="/signup"
+                noindex
+            />
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -2,9 +2,9 @@
 import { useQuery } from "react-query"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
-import parse from "html-react-parser"
-import { Calendar, User, ArrowRight } from "lucide-react"
+import { Calendar, User, ArrowRight, Clock } from "lucide-react"
 import appwriteService from "../appwrite/conf"
+import { excerpt, readingTime } from "../config/site"
 
 function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
   const { data: author, isLoading: authorLoading } = useQuery(
@@ -16,7 +16,8 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
     },
   )
 
-  const summary = content ? content.split(" ").slice(0, 20).join(" ") : ""
+  const summary = excerpt(content, 220)
+  const readMinutes = readingTime(content)
 
   return (
     <motion.div
@@ -27,8 +28,12 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
       <motion.div className="relative h-48 overflow-hidden" whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
         <img
           className="w-full h-full object-cover"
-          src={appwriteService.getFileUrl(featuredImage) || "/placeholder.svg"}
+          src={featuredImage ? appwriteService.getFileUrl(featuredImage) : "/placeholder.svg"}
           alt={title}
+          width="640"
+          height="360"
+          loading="lazy"
+          decoding="async"
         />
         <motion.div
           className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300"
@@ -46,7 +51,7 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
         <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2 line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
           <Link to={`/post/${$id}`}>{title}</Link>
         </h2>
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3 sm:mb-4 space-x-4">
+        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3 sm:mb-4 gap-x-4">
           <div className="flex items-center">
             <User size={16} className="mr-1" />
             <span className="truncate">{authorLoading ? "Loading..." : author ? author.name : "Unknown"}</span>
@@ -55,8 +60,12 @@ function PostCard({ $id, title, featuredImage, content, $createdAt, userId }) {
             <Calendar size={16} className="mr-1" />
             <span>{new Date($createdAt).toLocaleDateString()}</span>
           </div>
+          <div className="flex items-center">
+            <Clock size={16} className="mr-1" />
+            <span>{readMinutes} min read</span>
+          </div>
         </div>
-        <div className="text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 line-clamp-3 flex-grow">{parse(summary)}...</div>
+        <div className="text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 line-clamp-3 flex-grow">{summary}…</div>
         <motion.div whileHover={{ x: 5 }} transition={{ duration: 0.2 }} className="mt-auto">
           <Link
             to={`/post/${$id}`}

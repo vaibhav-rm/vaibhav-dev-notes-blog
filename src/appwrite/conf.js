@@ -1,6 +1,5 @@
 import config from '../config/config'
 import { Client, ID, Databases, Storage, Query, Account, Functions,Permission, Role } from "appwrite"
-import axios from 'axios';
 
 export class Service {
     client = new Client();

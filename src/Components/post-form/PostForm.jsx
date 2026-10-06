@@ -5,7 +5,7 @@ import appwriteService from '../../appwrite/conf'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import LoadingSpinner from '../LoadingSpinner'
-import { AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, AlertTriangle } from 'lucide-react'
 
 export default function PostForm({ post }) {
   const { register, handleSubmit, watch, setValue, control, getValues } = useForm({

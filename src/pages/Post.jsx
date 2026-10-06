@@ -9,7 +9,8 @@ import { ChevronLeft, Edit2, Trash2, Calendar, User, Clock, Share2, Twitter, Lin
 import appwriteService from "../appwrite/conf"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
-import { Helmet } from "react-helmet"
+import { SEO } from "../Components"
+import { SITE_NAME, SITE_URL, excerpt, postUrl, readingTime } from "../config/site"
 
 const CodeBlock = ({ code, language }) => {
   const [copied, setCopied] = useState(false)
@@ -135,7 +136,7 @@ export default function Post() {
 
   // Handle advanced sharing options
   const handleShareClick = async (platform) => {
-    const shareUrl = window.location.href
+    const shareUrl = postUrl(slug)
     const shareTitle = post.title
 
     if (platform === "copy") {
@@ -231,12 +232,7 @@ export default function Post() {
     return new Date(dateString).toLocaleDateString(undefined, options)
   }
 
-  const calculateReadTime = (content) => {
-    const wordsPerMinute = 200
-    const wordCount = content.split(/\s+/).length
-    const readTime = Math.ceil(wordCount / wordsPerMinute)
-    return readTime
-  }
+  const calculateReadTime = readingTime
 
   // Extract headings (H2 & H3) from post content for TOC sidebar
   const headings = post && post.content ? (() => {
@@ -265,47 +261,104 @@ export default function Post() {
     })
   }
 
-  if (!post) return null
+  if (!post) {
+    return (
+      <>
+        <SEO title="Loading post" description="Loading article." noindex />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <p className="text-gray-500 dark:text-gray-400">Loading…</p>
+        </div>
+      </>
+    )
+  }
 
-  // Define dynamic schema for Google Rich Snippets
+  const canonical = postUrl(slug)
+  const description = excerpt(post.content)
+  const publishedTime = post.$createdAt || post.createdAt
+  const modifiedTime = post.$updatedAt || post.updatedAt || publishedTime
+  const authorName = author?.name || "Vaibhav"
+  const featuredImage = post.featuredImage
+    ? appwriteService.getFileUrl(post.featuredImage)
+    : `${SITE_URL}/og-image.png`
+  const wordCount = post.content ? post.content.split(/\s+/).filter(Boolean).length : 0
+
   const schemaData = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "headline": post.title,
-    "image": [appwriteService.getFileUrl(post.featuredImage)],
-    "datePublished": post.$createdAt || post.createdAt,
-    "dateModified": post.$updatedAt || post.updatedAt || post.$createdAt || post.createdAt,
-    "author": {
-      "@type": "Person",
-      "name": author ? author.name : "Vaibhav",
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Vaibhav Notes",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://vaibhavnotes.pages.dev/favicon.svg",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": `${canonical}#blogposting`,
+        isPartOf: { "@id": `${SITE_URL}/#blog` },
+        mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+        url: canonical,
+        headline: post.title,
+        name: post.title,
+        description,
+        image: [featuredImage],
+        datePublished: publishedTime,
+        dateModified: modifiedTime,
+        wordCount,
+        timeRequired: `PT${readingTime(post.content)}M`,
+        isAccessibleForFree: true,
+        inLanguage: "en",
+        author: {
+          "@type": "Person",
+          name: authorName,
+          url: `${SITE_URL}/`,
+        },
+        publisher: {
+          "@type": "Person",
+          name: authorName,
+          url: `${SITE_URL}/`,
+        },
       },
-    },
-    "description": post.content ? post.content.replace(/<[^>]*>/g, "").substring(0, 160) : "",
+      {
+        "@type": "Blog",
+        "@id": `${SITE_URL}/#blog`,
+        url: `${SITE_URL}/`,
+        name: SITE_NAME,
+        inLanguage: "en",
+        publisher: { "@type": "Person", name: "Vaibhav", url: `${SITE_URL}/` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}/`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "All Posts",
+            item: `${SITE_URL}/all-posts`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: post.title,
+            item: canonical,
+          },
+        ],
+      },
+    ],
   }
 
   return (
     <>
-      <Helmet>
-        <title>{post.title} | Vaibhav Notes</title>
-        <meta name="description" content={post.content.replace(/<[^>]*>/g, "").substring(0, 160)} />
-        <link rel="canonical" href={window.location.href} />
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.content.replace(/<[^>]*>/g, "").substring(0, 160)} />
-        <meta property="og:image" content={appwriteService.getFilePreview(post.featuredImage)} />
-        <meta property="og:url" content={window.location.href} />
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json">
-          {JSON.stringify(schemaData)}
-        </script>
-      </Helmet>
+      <SEO
+        title={post.title}
+        description={description}
+        path={`/post/${slug}`}
+        image={featuredImage}
+        type="article"
+        publishedTime={publishedTime}
+        modifiedTime={modifiedTime}
+        author={authorName}
+        schema={schemaData}
+      />
 
       {/* Reading Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-1 z-50 bg-gray-200 dark:bg-gray-700">
@@ -339,7 +392,10 @@ export default function Post() {
             >
               <div className="relative aspect-video">
                 <img
-                  src={appwriteService.getFileUrl(post.featuredImage) || "/placeholder.svg"}
+                  src={post.featuredImage ? appwriteService.getFileUrl(post.featuredImage) : "/placeholder.svg"}
+                  width="1200"
+                  height="630"
+                  loading="eager"
                   alt={post.title}
                   className="object-cover w-full h-full"
                 />

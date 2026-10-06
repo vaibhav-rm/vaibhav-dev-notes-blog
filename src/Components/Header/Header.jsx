@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { LogOut, Menu, X } from 'lucide-react'
 import {useDispatch} from 'react-redux'
@@ -11,8 +11,6 @@ import DarkModeToggle from '../DarkModeToggle'
 function Header({ darkMode, toggleDarkMode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const authStatus = useSelector((state) => state.auth.status)
-  const navigate = useNavigate()
-
   const dispatch = useDispatch()
 
   const logoutHandler = () => {
@@ -28,6 +26,11 @@ function Header({ darkMode, toggleDarkMode }) {
       active: true,
     },
     {
+      name: 'All Posts',
+      slug: '/all-posts',
+      active: true,
+    },
+    {
       name: 'Login',
       slug: '/login',
       active: !authStatus,
@@ -36,11 +39,6 @@ function Header({ darkMode, toggleDarkMode }) {
       name: 'Signup',
       slug: '/signup',
       active: !authStatus,
-    },
-    {
-      name: 'All Posts',
-      slug: '/all-posts',
-      active: authStatus,
     },
     {
       name: 'Add Post',
@@ -61,19 +59,25 @@ function Header({ darkMode, toggleDarkMode }) {
             <span className="font-bold text-xl text-gray-900 dark:text-white">Vaibhav Dev Notes</span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-4">
+          <nav aria-label="Main" className="hidden md:flex items-center space-x-4">
             {navItems.map(
               (item) =>
                 item.active && (
-                  <button
+                  <Link
                     key={item.name}
-                    onClick={() => navigate(item.slug)}
+                    to={item.slug}
                     className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                   >
                     {item.name}
-                  </button>
+                  </Link>
                 )
             )}
+            <a
+              href="/rss.xml"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+            >
+              RSS
+            </a>
             <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
           </nav>
 
@@ -101,18 +105,23 @@ function Header({ darkMode, toggleDarkMode }) {
           {navItems.map(
             (item) =>
               item.active && (
-                <button
+                <Link
                   key={item.name}
-                  onClick={() => {
-                    navigate(item.slug)
-                    toggleMobileMenu()
-                  }}
+                  to={item.slug}
+                  onClick={toggleMobileMenu}
                   className="block w-full text-left text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
                   {item.name}
-                </button>
+                </Link>
               )
           )}
+          <a
+            href="/rss.xml"
+            onClick={toggleMobileMenu}
+            className="block w-full text-left text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+          >
+            RSS Feed
+          </a>
           <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
           {authStatus && (
             <button

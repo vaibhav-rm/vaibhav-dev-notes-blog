@@ -1,13 +1,15 @@
-import React from 'react'
-import { Container, PostForm} from '../Components'
+import { Container, PostForm, SEO } from '../Components'
 
 function AddPost() {
   return (
-    <div className='py-8'>
+    <>
+      <SEO title="Write a new post" path="/add-post" noindex />
+      <div className='py-8'>
         <Container>
-            <PostForm />
+          <PostForm />
         </Container>
-    </div>
+      </div>
+    </>
   )
 }
 

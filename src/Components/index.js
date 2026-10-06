@@ -13,5 +13,6 @@ import Button from './Button'
 import Input from './Input'
 import Select from './Select'
 import Skeleton, { PostCardSkeleton } from './Skeleton'
+import SEO from './SEO'
 
-export {Header, Footer, Input, Container, Button, AuthLayout, SignUp, Login, Logo, PostForm, PostCard,  LogoutBtn, RTE, Select, Skeleton, PostCardSkeleton}
+export {Header, Footer, Input, Container, Button, AuthLayout, SignUp, Login, Logo, PostForm, PostCard,  LogoutBtn, RTE, Select, Skeleton, PostCardSkeleton, SEO}

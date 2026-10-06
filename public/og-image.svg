@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="55%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g opacity="0.10" fill="none" stroke="#ffffff" stroke-width="2">
+    <circle cx="1060" cy="150" r="150"/>
+    <circle cx="1060" cy="150" r="100"/>
+    <circle cx="1060" cy="150" r="50"/>
+  </g>
+  <g transform="translate(88 96)">
+    <rect width="64" height="64" rx="14" fill="#ffffff"/>
+    <g fill="none" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22,24 14,32 22,40"/>
+      <polyline points="42,24 50,32 42,40"/>
+      <line x1="37" y1="22" x2="27" y2="42"/>
+    </g>
+  </g>
+  <text x="88" y="300" font-family="Helvetica, Arial, sans-serif" font-size="72" font-weight="bold" fill="#ffffff">Vaibhav Notes</text>
+  <text x="88" y="378" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#bfdbfe">Engineering notes, written in public.</text>
+  <rect x="88" y="430" width="120" height="6" rx="3" fill="#60a5fa"/>
+  <text x="88" y="510" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#93c5fd">Backend architecture  ·  Linux  ·  DevOps  ·  React</text>
+</svg>

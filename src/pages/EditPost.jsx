@@ -1,5 +1,4 @@
-import React from 'react'
-import {Container, PostCard} from '../Components'
+import { Container, SEO } from '../Components'
 import appwriteService from '../appwrite/conf'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
@@ -22,15 +21,20 @@ function EditPost() {
             navigate('/')
         }
     }, [slug, navigate])
-  
-  
-    return post ? (
-        <div className='py-8'>
-            <Container>
-                <PostForm post={post} />
-            </Container>
-        </div>
-    ) : null; 
+
+
+    return (
+        <>
+            <SEO title="Edit post" path={`/edit-post/${slug}`} noindex />
+            {post ? (
+                <div className='py-8'>
+                    <Container>
+                        <PostForm post={post} />
+                    </Container>
+                </div>
+            ) : null}
+        </>
+    )
 
 }
 

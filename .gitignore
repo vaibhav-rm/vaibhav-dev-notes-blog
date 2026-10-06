@@ -1,3 +1,11 @@
 node_modules
 .env
 .vercel
+
+# Build output
+dist
+
+# Generated on every build by scripts/generate-seo.js
+public/sitemap.xml
+public/rss.xml
+public/robots.txt

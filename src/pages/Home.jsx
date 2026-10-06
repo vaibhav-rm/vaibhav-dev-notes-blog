@@ -1,14 +1,50 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { motion } from 'framer-motion'
-import { Helmet } from 'react-helmet'
 import { Search } from 'lucide-react'
-import { PostCard, PostCardSkeleton } from '../Components'
+import { PostCard, PostCardSkeleton, SEO } from '../Components'
 import appwriteService from '../appwrite/conf'
+import site, { SITE_NAME, SITE_URL } from '../config/site'
 import '../App.css'
 
 const POSTS_CACHE_KEY = 'blogPosts'
 const POSTS_CACHE_TIME = 1000 * 60 * 5 // 5 minutes
+
+const PAGE_TITLE = 'Latest Posts'
+const PAGE_DESCRIPTION =
+  'Practical engineering notes on backend architecture, Linux, DevOps and React — written by Vaibhav.'
+
+const homeSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: `${SITE_URL}/`,
+      name: SITE_NAME,
+      description: PAGE_DESCRIPTION,
+      inLanguage: 'en',
+      publisher: { '@id': `${SITE_URL}/#person` },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${SITE_URL}/#person`,
+      name: site.author,
+      url: `${SITE_URL}/`,
+    },
+    {
+      '@type': 'Blog',
+      '@id': `${SITE_URL}/#blog`,
+      url: `${SITE_URL}/`,
+      name: SITE_NAME,
+      description: PAGE_DESCRIPTION,
+      inLanguage: 'en',
+      isPartOf: { '@id': `${SITE_URL}/#website` },
+      author: { '@id': `${SITE_URL}/#person` },
+      publisher: { '@id': `${SITE_URL}/#person` },
+    },
+  ],
+}
 
 function Home() {
   const queryClient = useQueryClient()
@@ -43,16 +79,20 @@ function Home() {
     })
   }, [posts, queryClient])
 
-  const pageTitle = "Latest Posts | Vaibhav Notes"
-  const pageDescription = "Explore the latest blog posts on Vaibhav Notes, covering a wide range of topics including technology, programming, and more."
+  const filteredPosts = useMemo(() => {
+    if (!posts) return []
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return posts
+    return posts.filter(
+      (post) =>
+        post.title?.toLowerCase().includes(query) ||
+        post.content?.toLowerCase().includes(query)
+    )
+  }, [posts, searchQuery])
 
-  if (isLoading) {
-    return (
-      <>
-        <Helmet>
-          <title>{pageTitle}</title>
-          <meta name="description" content={pageDescription} />
-        </Helmet>
+  const body = (() => {
+    if (isLoading) {
+      return (
         <div className="container mx-auto px-4 py-8">
           <div className="text-5xl font-bold mb-12 text-gray-800 dark:text-white text-center">
             Latest Posts
@@ -63,17 +103,11 @@ function Home() {
             ))}
           </div>
         </div>
-      </>
-    )
-  }
+      )
+    }
 
-  if (error) {
-    return (
-      <>
-        <Helmet>
-          <title>Error | Vaibhav Notes</title>
-          <meta name="description" content="An error occurred while loading posts. Please try again later." />
-        </Helmet>
+    if (error) {
+      return (
         <div className="container mx-auto px-4 py-8">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -84,17 +118,11 @@ function Home() {
             Error loading posts. Please try again later.
           </motion.h1>
         </div>
-      </>
-    )
-  }
+      )
+    }
 
-  if (!posts || posts.length === 0) {
-    return (
-      <>
-        <Helmet>
-          <title>No Posts Available | Vaibhav Notes</title>
-          <meta name="description" content="There are currently no posts available on Vaibhav Notes. Check back later for new content." />
-        </Helmet>
+    if (!posts || posts.length === 0) {
+      return (
         <div className="container mx-auto px-4 py-8">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -105,55 +133,10 @@ function Home() {
             No posts available.
           </motion.h1>
         </div>
-      </>
-    )
-  }
-
-  const filteredPosts = posts ? posts.filter((post) => {
-    const titleMatch = post.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    const contentMatch = post.content?.toLowerCase().includes(searchQuery.toLowerCase())
-    return titleMatch || contentMatch
-  }) : []
+      )
+    }
 
   return (
-    <>
-      <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
-        <link rel="canonical" href="https://vaibhavnotes.com" />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://vaibhavnotes.com" />
-        <meta property="og:image" content="https://vaibhavnotes.com/og-image.jpg" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
-        <meta name="twitter:image" content="https://vaibhavnotes.com/twitter-image.jpg" />
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "Blog",
-              "name": "Vaibhav Notes",
-              "description": "${pageDescription}",
-              "url": "https://vaibhavnotes.com",
-              "mainEntityOfPage": {
-                "@type": "WebPage",
-                "@id": "https://vaibhavnotes.com"
-              },
-              "publisher": {
-                "@type": "Organization",
-                "name": "Vaibhav Notes",
-                "logo": {
-                  "@type": "ImageObject",
-                  "url": "https://vaibhavnotes.com/logo.png"
-                }
-              }
-            }
-          `}
-        </script>
-      </Helmet>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -168,7 +151,7 @@ function Home() {
         >
           Latest Posts
         </motion.h1>
-        
+
         {/* Search Bar */}
         <div className="flex flex-col items-center mb-8 max-w-xl mx-auto px-4 w-full">
           <div className="relative w-full">
@@ -210,6 +193,19 @@ function Home() {
           </div>
         )}
       </motion.div>
+    )
+  })()
+
+  return (
+    <>
+      <SEO
+        title={PAGE_TITLE}
+        description={PAGE_DESCRIPTION}
+        path="/"
+        type="website"
+        schema={homeSchema}
+      />
+      {body}
     </>
   )
 }

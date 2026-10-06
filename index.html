@@ -2,33 +2,72 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>Vaibhav Notes | 2024 3rd year</title>
-    <meta name="description" content="Explore insightful articles on technology, programming, and more at Vaibhav Notes." />
+
+    <!--
+      data-react-helmet="true" marks a tag as owned by the client-side <SEO>
+      component. Without it the static default stays in <head> and react-helmet
+      appends a second tag, which gives the page two conflicting canonicals.
+      Keep the fallback values in sync with src/config/site.js.
+    -->
+    <title>Vaibhav Notes — Engineering notes on backend, Linux, DevOps &amp; React</title>
+    <meta name="description" data-react-helmet="true" content="Practical engineering notes on backend architecture, Linux, DevOps and React — written by Vaibhav." />
+    <meta name="robots" data-react-helmet="true" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="Vaibhav" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://vaibhavnotes.pages.dev/" />
+    <link rel="canonical" data-react-helmet="true" href="https://vaibhavnotes.pages.dev/" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="alternate" type="application/rss+xml" title="Vaibhav Notes — latest posts" href="https://vaibhavnotes.pages.dev/rss.xml" />
+
+    <meta property="og:type" data-react-helmet="true" content="website" />
     <meta property="og:site_name" content="Vaibhav Notes" />
     <meta property="og:locale" content="en_US" />
+    <meta property="og:title" data-react-helmet="true" content="Vaibhav Notes — Engineering notes on backend, Linux, DevOps &amp; React" />
+    <meta property="og:description" data-react-helmet="true" content="Practical engineering notes on backend architecture, Linux, DevOps and React — written by Vaibhav." />
+    <meta property="og:url" data-react-helmet="true" content="https://vaibhavnotes.pages.dev/" />
+    <meta property="og:image" data-react-helmet="true" content="https://vaibhavnotes.pages.dev/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" data-react-helmet="true" content="summary_large_image" />
+    <meta name="twitter:title" data-react-helmet="true" content="Vaibhav Notes — Engineering notes on backend, Linux, DevOps &amp; React" />
+    <meta name="twitter:description" data-react-helmet="true" content="Practical engineering notes on backend architecture, Linux, DevOps and React — written by Vaibhav." />
+    <meta name="twitter:image" data-react-helmet="true" content="https://vaibhavnotes.pages.dev/og-image.png" />
+
+    <link rel="preconnect" href="https://cloud.appwrite.io" crossorigin />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
+    <script type="application/ld+json" data-react-helmet="true">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Vaibhav Notes",
+        "url": "https://vaibhavnotes.pages.dev/",
+        "description": "Practical engineering notes on backend architecture, Linux, DevOps and React — written by Vaibhav.",
+        "inLanguage": "en",
+        "publisher": {
+          "@type": "Person",
+          "name": "Vaibhav",
+          "url": "https://vaibhavnotes.pages.dev/"
+        }
+      }
+    </script>
   </head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5WZ2JQLD8V"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-5WZ2JQLD8V');
-</script>
 
   <body class="bg-white dark:bg-gray-900">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <p>
+        This site needs JavaScript to display articles. Browse every post at
+        <a href="/all-posts">/all-posts</a>.
+      </p>
+    </noscript>
   </body>
 </html>

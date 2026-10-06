@@ -6,8 +6,9 @@ import "./App.css"
 import "./mobile.css" // add responsive override stylesheet AFTER App.css so it takes precedence
 import authService from "./appwrite/auth"
 import { login, logout } from "./Store/authSlice"
-import { Header, Footer } from "./Components"
+import { Header, Footer, SEO } from "./Components"
 import { Outlet } from "react-router-dom"
+import RouteChangeTracker from "./lib/RouteChangeTracker"
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -30,7 +31,7 @@ function App() {
     const isDarkMode = localStorage.getItem("darkMode") === "true"
     setDarkMode(isDarkMode)
     updateTheme(isDarkMode)
-  }, [])
+  }, [dispatch])
 
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode
@@ -48,11 +49,18 @@ function App() {
   }
 
   if (loading) {
-    return null
+    // No route has mounted yet, so a real canonical is unknown.
+    return (
+      <>
+        <SEO title="Loading" path="/loading" noindex />
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900" />
+      </>
+    )
   }
 
   return (
     <div className="app-container min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
+      <RouteChangeTracker />
       <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       <main className="flex-grow">
         <div className="content-wrapper">

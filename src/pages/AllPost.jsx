@@ -1,8 +1,11 @@
-import React, {useState, useEffect} from 'react'
-import { Helmet } from 'react-helmet'
+import { useState, useEffect, useMemo } from 'react'
 import { Search } from 'lucide-react'
 import appwriteService from '../appwrite/conf'
-import { Container, PostCard, PostCardSkeleton } from '../Components'
+import { Container, PostCard, PostCardSkeleton, SEO } from '../Components'
+import { SITE_URL, postUrl } from '../config/site'
+
+const PAGE_DESCRIPTION =
+    'Every article published on Vaibhav Notes, in one searchable archive — backend architecture, Linux, DevOps and React.'
 
 function AllPost() {
     const [posts, setPost] = useState([]);
@@ -21,23 +24,38 @@ function AllPost() {
         })
     }, [])
 
-    const filteredPosts = posts.filter((post) => {
-        const titleMatch = post.title?.toLowerCase().includes(searchQuery.toLowerCase())
-        const contentMatch = post.content?.toLowerCase().includes(searchQuery.toLowerCase())
-        return titleMatch || contentMatch
-    })
+    const filteredPosts = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase()
+        if (!query) return posts
+        return posts.filter((post) =>
+            post.title?.toLowerCase().includes(query) ||
+            post.content?.toLowerCase().includes(query)
+        )
+    }, [posts, searchQuery])
+
+    const itemListSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'All Posts',
+        url: `${SITE_URL}/all-posts`,
+        numberOfItems: posts.length,
+        itemListElement: posts.map((post, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            url: postUrl(post.$id),
+            name: post.title,
+        })),
+    }
 
     return (
         <>
-            <Helmet>
-                <title>All Posts | Vaibhav Notes</title>
-                <meta name="description" content="Browse all development notes, tutorials, and programming articles by Vaibhav." />
-                <link rel="canonical" href="https://vaibhavnotes.pages.dev/all-posts" />
-                <meta property="og:title" content="All Posts | Vaibhav Notes" />
-                <meta property="og:description" content="Browse all development notes, tutorials, and programming articles by Vaibhav." />
-                <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://vaibhavnotes.pages.dev/all-posts" />
-            </Helmet>
+            <SEO
+                title="All Posts"
+                description={PAGE_DESCRIPTION}
+                path="/all-posts"
+                type="website"
+                schema={posts.length ? itemListSchema : undefined}
+            />
             <div className='py-8 min-h-screen'>
                 <Container>
                     <div className="flex flex-col items-center mb-8 max-w-xl mx-auto px-4">
