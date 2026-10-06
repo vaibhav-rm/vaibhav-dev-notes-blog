@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Button, Input, Select, RTE } from '../index'
 import TagInput from '../TagInput'
 import CategorySelect from '../CategorySelect'
@@ -7,8 +7,17 @@ import appwriteService from '../../appwrite/conf'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import LoadingSpinner from '../LoadingSpinner'
-import { AlertCircle, AlertTriangle } from 'lucide-react'
+import { AlertCircle, AlertTriangle, Sparkles } from 'lucide-react'
 import { normalizeTags, postCategorySlug } from '../../lib/taxonomy'
+
+export function cleanHtmlFormatting(html) {
+  if (!html || typeof html !== 'string') return ''
+  return html
+    .replace(/style="\s*text-align:\s*(left|start);?\s*"/gi, '')
+    .replace(/\s*style=""/gi, '')
+    .replace(/<span>(.*?)<\/span>/gi, '$1')
+    .trim()
+}
 
 export default function PostForm({ post }) {
   const { register, handleSubmit, watch, setValue, control, getValues } = useForm({
@@ -27,13 +36,19 @@ export default function PostForm({ post }) {
   const [errorMsg, setErrorMsg] = useState('')
   const [tags, setTags] = useState(() => normalizeTags(post?.tags))
 
-  const watchContent = watch('content') || ''
-  const contentLength = watchContent.length
+  const watchContent = useWatch({ control, name: 'content' }) || ''
+  const cleanedContent = cleanHtmlFormatting(watchContent)
+  const rawHtmlLength = watchContent.length
+  const cleanedHtmlLength = cleanedContent.length
+  const plainTextLength = watchContent.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length
+  const wordCount = watchContent.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length
   const hasBase64Image = watchContent.includes('data:image/')
 
   const submit = async (data) => {
     setErrorMsg('')
-    const currentContent = data.content || ''
+    let currentContent = cleanHtmlFormatting(data.content || '')
+    data.content = currentContent
+
     if (!currentContent.trim()) {
       setErrorMsg('Post content cannot be empty.')
       return
@@ -169,33 +184,56 @@ export default function PostForm({ post }) {
           <RTE label="Content :" name="content" control={control} defaultValue={getValues("content")} />
 
           {/* HTML Content Character Limit Counter & Warnings */}
-          <div className="mt-3 mb-6 p-3 rounded-lg border bg-gray-50 dark:bg-gray-800/60 dark:border-gray-700 text-xs transition-colors duration-200">
-            <div className="flex items-center justify-between font-mono">
-              <span className="text-gray-600 dark:text-gray-400 font-sans font-medium">
-                HTML Character Count (Appwrite Limit):
-              </span>
-              <span
-                className={`font-bold px-2 py-0.5 rounded ${
-                  contentLength > 10000
-                    ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
-                    : contentLength > 8000
-                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
-                    : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
-                }`}
-              >
-                {contentLength.toLocaleString()} / 10,000 chars
-              </span>
+          <div className="mt-3 mb-6 p-3 rounded-lg border bg-gray-50 dark:bg-gray-800/60 dark:border-gray-700 text-xs transition-colors duration-200 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 font-mono">
+              <div className="flex items-center space-x-2 font-sans font-medium text-gray-700 dark:text-gray-300">
+                <span>HTML Character Count (Appwrite Limit):</span>
+                <span className="text-gray-400 font-normal">
+                  ({plainTextLength.toLocaleString()} text chars, {wordCount.toLocaleString()} words)
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span
+                  className={`font-bold px-2 py-0.5 rounded ${
+                    rawHtmlLength > 10000
+                      ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300'
+                      : rawHtmlLength > 8000
+                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
+                      : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
+                  }`}
+                >
+                  {rawHtmlLength.toLocaleString()} / 10,000 chars
+                </span>
+              </div>
             </div>
 
-            {contentLength > 10000 && (
-              <div className="mt-2 flex items-center text-red-600 dark:text-red-400 font-semibold space-x-1.5">
+            {rawHtmlLength > cleanedHtmlLength && (
+              <div className="flex items-center justify-between pt-1 border-t border-gray-200 dark:border-gray-700/60 text-gray-600 dark:text-gray-400 font-sans">
+                <span>
+                  Redundant markup detected ({rawHtmlLength - cleanedHtmlLength} chars can be saved).
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue('content', cleanedContent, { shouldValidate: true, shouldDirty: true })
+                  }}
+                  className="inline-flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-800/60 font-medium transition-colors"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>Clean HTML Markup</span>
+                </button>
+              </div>
+            )}
+
+            {rawHtmlLength > 10000 && (
+              <div className="flex items-center text-red-600 dark:text-red-400 font-semibold space-x-1.5">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>Exceeds Appwrite 10,000 HTML character limit! Shorten content before submitting.</span>
+                <span>Exceeds Appwrite 10,000 HTML character limit! Shorten content or clean formatting before submitting.</span>
               </div>
             )}
 
             {hasBase64Image && (
-              <div className="mt-2 p-2 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 flex items-start space-x-2">
+              <div className="p-2 rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 flex items-start space-x-2">
                 <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <strong>Embedded Image Detected!</strong> Inline pasted images create huge base64 strings (&gt;50,000 chars) inside HTML content, exceeding Appwrite limits. Please upload your post image using the <em>Featured Image</em> field instead of pasting inside the editor.
@@ -237,9 +275,9 @@ export default function PostForm({ post }) {
             type="submit"
             bgColor={post ? "bg-green-600" : "bg-blue-600"}
             className={`w-full text-white font-semibold py-3 rounded-lg shadow transition-colors duration-200 ${
-              contentLength > 10000 ? "opacity-60 cursor-not-allowed bg-gray-500" : ""
+              rawHtmlLength > 10000 ? "opacity-60 cursor-not-allowed bg-gray-500" : ""
             }`}
-            disabled={contentLength > 10000}
+            disabled={rawHtmlLength > 10000}
           >
             {post ? "Update Post" : "Submit Post"}
           </Button>

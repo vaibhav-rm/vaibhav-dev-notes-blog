@@ -260,6 +260,14 @@ export default function Post() {
     return list
   })() : []
 
+  // Clean legacy redundant alignment inline styles from existing post content
+  const cleanPostHtml = (html) => {
+    if (!html) return ""
+    return html
+      .replace(/style="\s*text-align:\s*(left|start);?\s*"/gi, '')
+      .replace(/\s*style=""/gi, '')
+  }
+
   // Dynamic injector to add ids to h2/h3 elements at render-time
   const injectHeadingIds = (html) => {
     if (!html) return ""
@@ -566,8 +574,8 @@ export default function Post() {
                     </AnimatePresence>
                   </div>
                 </div>
-                <div className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none prose-p:my-3 sm:prose-p:my-5 prose-headings:my-3 sm:prose-headings:my-6 prose-img:my-4 sm:prose-img:my-6">
-                  {parse(injectHeadingIds(post.content), options)}
+                <div className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none text-left prose-p:my-3 sm:prose-p:my-5 prose-headings:my-3 sm:prose-headings:my-6 prose-img:my-4 sm:prose-img:my-6">
+                  {parse(injectHeadingIds(cleanPostHtml(post.content)), options)}
                 </div>
 
                 {(categorySlug || tags.length > 0) && (
